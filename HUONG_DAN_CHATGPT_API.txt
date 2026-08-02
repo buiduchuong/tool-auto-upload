@@ -1,0 +1,52 @@
+HUONG DAN DAU API TOOL VOI CHATGPT
+
+1. Chay web panel tren VPS
+- Chay: run_web_panel.bat
+- Neu muon ChatGPT goi duoc tu internet, web panel phai co URL HTTPS cong khai.
+- Nen dung reverse proxy nhu Nginx/Caddy/Cloudflare Tunnel va dat mat khau/firewall.
+
+2. OpenAPI schema cho ChatGPT Actions
+- URL schema:
+  https://DOMAIN_CUA_BAN/gpt/openapi.json
+- Neu test local:
+  http://127.0.0.1:8080/gpt/openapi.json
+  Luu y: ChatGPT khong goi duoc 127.0.0.1 tren may ban, chi dung de test.
+
+3. Token bao mat
+- API ChatGPT dung Bearer token.
+- Token duoc luu trong panel_settings.json tai:
+  api.token
+- Co the thay token bang bien moi truong:
+  WEB_PANEL_API_TOKEN
+
+Trong GPT Builder:
+- Vao Configure -> Actions -> Create new action.
+- Import schema tu URL /gpt/openapi.json hoac paste schema JSON.
+- Authentication: API key.
+- Auth Type: Bearer.
+- Dán token trong panel_settings.json.
+
+4. Cac action ChatGPT co the goi
+- getToolStatus: xem account, video, job, log.
+- downloadVideos: gui link YouTube/TikTok/Facebook cho tool tai bang yt-dlp.
+- uploadVideos: dang video len YouTube/TikTok/Facebook.
+- publishYouTubeDrafts: publish cac ban nhap YouTube dang thay trong Studio.
+- setDescriptions: doi mo ta/hashtag.
+- deleteVideo: xoa video khoi thu muc upload. Mac dinh chuyen vao deleted_videos de co the khoi phuc.
+- stopJob: dung job.
+
+5. Vi du cau lenh trong ChatGPT
+- Tai link nay ve tool: https://...
+- Tai profile TikTok nay bang che do tiktok_profile: https://www.tiktok.com/@username
+- Xem tool dang co bao nhieu video.
+- Dang tat ca video len YouTube account youtube_main.
+- Publish cac ban nhap YouTube account youtube_main.
+- Dang Facebook lan luot cac account: facebook_main, facebook_acc_2.
+- Doi mo ta Facebook thanh: ...
+- Xoa video co ten "...mp4" trong danh sach video.
+
+6. Luu y an toan
+- API nay co quyen tai video va dang video that len tai khoan cua ban.
+- API xoa video chi cho phep xoa file video nam trong thu muc cua tool. Mac dinh khong xoa han ma chuyen vao deleted_videos.
+- Khong cong khai token.
+- Nen de ChatGPT hoi xac nhan truoc khi upload.

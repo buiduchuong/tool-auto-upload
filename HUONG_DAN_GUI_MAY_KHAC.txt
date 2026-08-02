@@ -1,0 +1,40 @@
+HUONG DAN DUNG TOOL TREN MAY KHAC
+
+1. GIAI NEN FILE ZIP
+- Giai nen toan bo file zip ra mot thu muc bat ky.
+- Khong doi ten rieng tung file ben trong. Nen giu nguyen ca thu muc.
+
+2. MAY MOI CAN CO
+- Windows.
+- Google Chrome.
+- Python 3 da cai va go duoc lenh: python
+- Mang internet.
+
+3. CAI THU VIEN LAN DAU
+- Chay file: setup.bat
+- Doi den khi cua so bao cai xong.
+
+4. DANG NHAP YOUTUBE
+- Chay file: run_login.bat
+- Dang nhap YouTube/YouTube Studio trong Chrome vua mo.
+- Sau khi dang nhap xong, giu Chrome do neu tool yeu cau.
+
+5. MO PANEL
+- Chay file: run_panel.bat
+- Tab "Tai video": dan link moi dong mot link, bam "Tai video".
+- Mac dinh tool tai video co am thanh, kieu giong:
+  yt-dlp.exe --yes-playlist link_video
+- Video tai ve nam trong thu muc: videos
+
+6. UPLOAD VIDEO
+- De video can upload vao thu muc: videos
+- Sua mo ta trong panel hoac file: default_description.txt
+- Bam "Upload tat ca video" hoac chon 1 video roi bam "Upload video dang chon".
+
+7. LUU Y KHI GUI SANG MAY KHAC
+- Thu muc chrome-profile khong duoc dong goi kem vi day la du lieu dang nhap cua may cu.
+- Sang may moi can dang nhap lai bang run_login.bat.
+- Neu tai video Facebook rieng tu, co the can cookies. Nhap them vao o "Lenh them", vi du:
+  --cookies cookies.txt
+- Neu may moi khong nhan lenh python, hay cai Python va tick "Add Python to PATH".
+

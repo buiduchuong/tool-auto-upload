@@ -1,0 +1,77 @@
+HUONG DAN TAI VIDEO TIKTOK TREN CPANEL / LINUX
+
+Luu y quan trong:
+- cPanel/Linux khong chay duoc file Windows nhu yt-dlp.exe, ffmpeg.exe, run_panel.bat.
+- Neu hosting co Terminal/SSH, hay chay bang python3 -m yt_dlp hoac file .sh ben duoi.
+- Neu hosting khong cho chay lenh nen tai TikTok tren may Windows bang panel, sau do upload file len hosting.
+
+CACH 1: CHAY TRONG CPANEL TERMINAL / SSH
+
+1. Upload cac file tool len hosting.
+2. Vao dung thu muc tool:
+
+cd public_html/mstar_youtube_public_same_desc_v4
+
+3. Cai/cap nhat yt-dlp:
+
+python3 -m pip install -U yt-dlp
+
+4. Cap quyen chay script:
+
+chmod +x run_download_tiktok_profile.sh
+
+5. Tai profile TikTok mac dinh:
+
+./run_download_tiktok_profile.sh
+
+6. Tai profile khac:
+
+./run_download_tiktok_profile.sh "https://www.tiktok.com/@username"
+
+Video se nam trong:
+TikTok_Channel/uploader/upload_date_id.mp4
+
+File bo qua video da tai roi nam trong:
+archive_video.txt
+
+CACH 2: COPY LENH TU PANEL WINDOWS
+
+1. Chay run_panel.bat tren Windows.
+2. Vao tab "Tai video".
+3. Bam "Mau tai profile TikTok".
+4. Dan link TikTok profile.
+5. Bam "Lenh cPanel/Linux TikTok".
+6. Copy lenh trong log va dan vao cPanel Terminal.
+
+LENH MAU CPANEL / LINUX
+
+python3 -m pip install -U yt-dlp
+mkdir -p TikTok_Channel
+python3 -m yt_dlp --ignore-config "https://www.tiktok.com/@tamanmoingay2404" \
+  -f "bv*+ba/b" \
+  --merge-output-format mp4 \
+  --remux-video mp4 \
+  --match-filter "vcodec!=none" \
+  -P "TikTok_Channel" \
+  -o "%(uploader)s/%(upload_date)s_%(id)s.%(ext)s" \
+  --download-archive "archive_video.txt" \
+  --ignore-errors \
+  --sleep-interval 3 --max-sleep-interval 8
+
+NEU BI LOI
+
+- Loi "No module named yt_dlp":
+  python3 -m pip install --user -U yt-dlp
+
+- Loi thieu ffmpeg:
+  Cac video TikTok thuong van tai duoc. Neu can merge/remux day du, hay cai ffmpeg tren hosting hoac hoi nha cung cap hosting.
+
+- TikTok chan IP / can cookies:
+  Them cookies vao cuoi lenh, vi du:
+  --cookies cookies.txt
+
+- Neu log bao "does not pass filter (vcodec!=none), skipping":
+  Bai do chi co audio trong du lieu yt-dlp lay duoc, thuong la bai anh/slideshow hoac TikTok dang chan video. Lenh da duoc cau hinh de bo qua bai khong co video thay vi tai nham file audio.
+
+- Hosting bi timeout:
+  Dung SSH/Terminal thay vi chay qua trinh duyet. Viec tai ca profile co the mat rat lau.

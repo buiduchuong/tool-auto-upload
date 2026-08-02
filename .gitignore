@@ -1,0 +1,44 @@
+# Local Python environment/cache
+.venv/
+__pycache__/
+*.py[cod]
+
+# Browser profiles and account sessions
+accounts/
+chrome-profile*/
+
+# Runtime video/data folders
+videos/
+TikTok_Channel/
+uploaded_success/
+uploaded_tiktok_success/
+uploaded_facebook_success/
+uploaded_instagram_success/
+deleted_videos/
+ayrshare_upload_temp/
+facebook_upload_temp/
+zernio_upload_temp/
+instagram_debug/
+
+# Local settings, credentials, logs, generated URLs
+panel_settings.json
+*_description.txt
+title_hashtags.txt
+description_hashtags.txt
+*_last_run.log
+*_media_urls.txt
+archive_video.txt
+
+# Generated packages/build output
+vps_light_package/
+vps_light_package.zip
+
+# Large/local binary tools. setup.ps1 installs or falls back where possible.
+*.exe
+
+# OS/editor noise
+Thumbs.db
+Desktop.ini
+.DS_Store
+.idea/
+.vscode/

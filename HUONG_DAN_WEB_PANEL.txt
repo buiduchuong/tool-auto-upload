@@ -1,0 +1,57 @@
+HUONG DAN CHAY WEB PANEL
+
+1. Chay web panel tren may hien tai
+- Bam file: run_web_panel.bat
+- Mo trinh duyet vao: http://127.0.0.1:8080
+- Chay show_credentials.bat de xem username/password dang nhap web panel.
+
+2. Chay tren VPS / may trong mang LAN
+- Mac dinh web panel chi mo o 127.0.0.1 de an toan.
+- Neu muon may khac truy cap, chay PowerShell trong thu muc tool:
+  $env:WEB_PANEL_HOST="0.0.0.0"; python web_panel.py
+- Sau do mo: http://IP_CUA_VPS:8080
+- Khuyen dung Cloudflare Tunnel/reverse proxy HTTPS, khong mo port 8080 tran ra internet.
+
+3. Luu y bao mat
+- Khong nen mo cong 8080 cong khai ra internet neu chua dat mat khau/reverse proxy.
+- Facebook Page Token duoc luu trong panel_settings.json. Web panel se khong hien token cu ra giao dien; de trong o token neu khong muon doi token.
+
+4. Cach dung nhanh
+- Tab YouTube/TikTok/Facebook: sua thu muc, mo ta, tuy chon upload, roi bam Upload tat ca hoac Upload video chon.
+- Tab Tai video: dan moi link mot dong, chon dinh dang, bam Tai video.
+- Tab Log: xem tien trinh realtime va dung job neu can.
+
+5. Van can Chrome dang nhap
+- YouTube/TikTok/Facebook che do browser/Selenium van can mo Chrome dang nhap truoc.
+- Bam nut Mo Chrome dang nhap trong web panel, dang nhap xong thi giu nguyen cua so Chrome.
+- Rieng Facebook browser se mo Chrome voi ngon ngu English (en-US). Neu Chrome Facebook cu dang mo tieng Viet, hay tat cua so Chrome do roi bam Mo Facebook dang nhap lai.
+- Khi dang Facebook, tool se tu chuyen video ve chuan Facebook bang FFmpeg truoc khi upload: H.264, AAC, 30fps, yuv420p, faststart. File tam nam trong facebook_upload_temp va caption van lay theo ten goc.
+- Neu muon bo qua buoc chuyen chuan de upload nhanh hon, chay facebook_upload.py voi tham so --no-convert.
+
+6. Multi-account chay lan luot
+- Moi nen tang co danh sach account rieng trong web panel.
+- Bam Them account de tao profile rieng, vi du accounts/youtube/youtube_acc_2/chrome-profile.
+- Chon account moi -> bam Mo Chrome dang nhap -> dang nhap xong giu Chrome do.
+- Tick nhieu account -> bam Upload lan luot account tick.
+- Tool se upload account 1 xong moi chay account 2. Neu account nao loi, chuoi se dung de tranh dang nham.
+- Khong nen chay song song nhieu account tren cung nen tang o ban dau.
+
+7. Log va dung luong VPS
+- Log web panel chi giu trong RAM khoang 200 dong moi nhom, khong ghi file log.
+- Mac dinh tool khong luu screenshot/HTML debug khi loi de tranh nang VPS.
+- Neu can debug loi kho, dat bien moi truong SAVE_DEBUG_ARTIFACTS=1 roi chay lai.
+- Co the chay cleanup_vps_light.bat de xoa cache/debug/temp an toan.
+
+8. Xoa video
+- Trong web panel, chon video roi bam Xoa video chon.
+- Mac dinh video se duoc chuyen vao deleted_videos/YYYYMMDD, khong xoa han ngay.
+- ChatGPT API cung co action deleteVideo de xoa video theo duong dan lay tu getToolStatus.
+- API chi cho phep xoa file video trong thu muc cua tool de tranh xoa nham file he thong.
+
+9. Xu ly YouTube bi ket ban nhap
+- Neu YouTube Studio hien nhieu video o trang thai Ban nhap, vao tab YouTube trong web panel.
+- Chon dung account dang co cac ban nhap.
+- Bam Mo Chrome dang nhap neu Chrome chua mo, vao dung YouTube Studio va giu Chrome.
+- Bam Publish ban nhap.
+- Tool se bam Chinh sua ban nhap/Edit draft, chon Visibility theo cau hinh, roi Done/Publish.
+- Neu YouTube chan do copyright/checks/policy/captcha, tool se bao loi va khong coi la thanh cong.

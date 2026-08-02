@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mstar Web Panel</title>
+    <link rel="stylesheet" href="/styles.css?v=20260727-1" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Mstar Web Panel</h1>
+        <p id="baseDir">Đang tải...</p>
+      </div>
+      <div class="top-actions">
+        <button id="refreshBtn" type="button">Làm mới</button>
+        <button id="saveAllBtn" type="button" class="primary">Lưu cấu hình</button>
+      </div>
+    </header>
+
+    <main class="shell">
+      <nav class="tabs" aria-label="Khu vực điều khiển">
+        <button class="tab active" data-tab="youtube">YouTube</button>
+        <button class="tab" data-tab="tiktok">TikTok</button>
+        <button class="tab" data-tab="facebook">Facebook</button>
+        <button class="tab" data-tab="instagram">Instagram</button>
+        <button class="tab" data-tab="zernio">Zernio</button>
+        <button class="tab" data-tab="download">Tải video</button>
+        <button class="tab" data-tab="logs">Log</button>
+      </nav>
+
+      <section id="youtube" class="page active">
+        <div class="grid two">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Video YouTube</h2>
+              <span id="youtubeCount" class="pill">0 video</span>
+            </div>
+            <div class="form-row">
+              <label>Thư mục upload</label>
+              <input id="youtube_upload_dir" data-setting="youtube.upload_dir" />
+            </div>
+            <div id="youtubeVideos" class="video-list"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head"><h2>Điều khiển YouTube</h2></div>
+            <div class="account-box">
+              <label>Tài khoản đang dùng<select id="youtubeAccountSelect" data-account-select="youtube"></select></label>
+              <button type="button" data-add-account="youtube">Thêm account</button>
+              <div id="youtubeAccountList" class="account-list"></div>
+            </div>
+            <div class="form-grid">
+              <label>Hiển thị<select id="youtube_visibility" data-setting="youtube.visibility"><option value="public">Public</option><option value="unlisted">Unlisted</option><option value="private">Private</option><option value="skip">Skip</option></select></label>
+              <label>Trẻ em<select id="youtube_made_for_kids" data-setting="youtube.made_for_kids"><option value="no">Không</option><option value="yes">Có</option><option value="skip">Bỏ qua</option></select></label>
+              <label>Nghỉ giữa video<input id="youtube_delay" data-setting="youtube.delay" inputmode="numeric" /></label>
+              <label>Tiêu đề riêng<input id="youtube_custom_title" data-setting="youtube.custom_title" /></label>
+            </div>
+            <label class="check"><input id="youtube_attach" data-setting="youtube.attach" type="checkbox" /> Kết nối Chrome đã đăng nhập</label>
+            <label>Mô tả chung<textarea id="desc_youtube" data-description="youtube"></textarea></label>
+            <div class="form-grid">
+              <label>Hashtag tiêu đề<input id="desc_title_hashtags" data-description="title_hashtags" /></label>
+              <label>Hashtag mô tả<input id="desc_description_hashtags" data-description="description_hashtags" /></label>
+            </div>
+            <div class="actions">
+              <button data-action="youtube.login">Mở Chrome đăng nhập</button>
+              <button data-action="youtube.upload_selected">Upload video chọn</button>
+              <button data-delete-selected="youtube" class="danger">Xóa video chọn</button>
+              <button data-action="youtube.upload_all" class="primary">Upload tất cả</button>
+              <button data-action="youtube.resume_failed_uploads" class="primary">Upload lại video lỗi</button>
+              <button data-action="youtube.publish_drafts" class="primary">Publish bản nháp</button>
+              <button data-sequence="youtube" class="primary">Upload lần lượt account tick</button>
+              <button data-stop="youtube" class="danger">Dừng</button>
+            </div>
+            <p id="youtubeActionStatus" class="action-status" aria-live="polite"></p>
+          </section>
+        </div>
+      </section>
+
+      <section id="tiktok" class="page">
+        <div class="grid two">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Video TikTok</h2>
+              <span id="tiktokCount" class="pill">0 video</span>
+            </div>
+            <div class="form-row">
+              <label>Thư mục upload</label>
+              <input id="tiktok_upload_dir" data-setting="tiktok.upload_dir" />
+            </div>
+            <div id="tiktokVideos" class="video-list"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head"><h2>Điều khiển TikTok</h2></div>
+            <div class="account-box">
+              <label>Tài khoản đang dùng<select id="tiktokAccountSelect" data-account-select="tiktok"></select></label>
+              <button type="button" data-add-account="tiktok">Thêm account</button>
+              <div id="tiktokAccountList" class="account-list"></div>
+            </div>
+            <div class="form-grid">
+              <label>Nghỉ giữa video<input id="tiktok_delay" data-setting="tiktok.delay" inputmode="numeric" /></label>
+              <label>Tiêu đề riêng<input id="tiktok_custom_title" data-setting="tiktok.custom_title" /></label>
+            </div>
+            <label class="check"><input id="tiktok_attach" data-setting="tiktok.attach" type="checkbox" /> Kết nối Chrome đã đăng nhập</label>
+            <label>Mô tả TikTok<textarea id="desc_tiktok" data-description="tiktok"></textarea></label>
+            <div class="actions">
+              <button data-action="tiktok.login">Mở TikTok đăng nhập</button>
+              <button data-action="tiktok.upload_selected">Upload video chọn</button>
+              <button data-delete-selected="tiktok" class="danger">Xóa video chọn</button>
+              <button data-action="tiktok.upload_all" class="primary">Upload tất cả</button>
+              <button data-sequence="tiktok" class="primary">Upload lần lượt account tick</button>
+              <button data-stop="tiktok" class="danger">Dừng</button>
+            </div>
+            <p id="tiktokActionStatus" class="action-status" aria-live="polite"></p>
+          </section>
+        </div>
+      </section>
+
+      <section id="facebook" class="page">
+        <div class="grid two">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Video Facebook</h2>
+              <span id="facebookCount" class="pill">0 video</span>
+            </div>
+            <div class="form-row">
+              <label>Thư mục upload</label>
+              <input id="facebook_upload_dir" data-setting="facebook.upload_dir" />
+            </div>
+            <div id="facebookVideos" class="video-list"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head"><h2>Điều khiển Facebook</h2></div>
+            <div class="account-box">
+              <label>Tài khoản đang dùng<select id="facebookAccountSelect" data-account-select="facebook"></select></label>
+              <button type="button" data-add-account="facebook">Thêm account</button>
+              <div id="facebookAccountList" class="account-list"></div>
+            </div>
+            <div class="form-grid">
+              <label>Chế độ<select id="facebook_mode" data-setting="facebook.mode"><option value="reels-api">Reels API</option><option value="browser">Browser</option></select></label>
+              <label>API version<input id="facebook_api_version" data-setting="facebook.api_version" /></label>
+              <label>Page ID<input id="facebook_page_id" data-setting="facebook.page_id" /></label>
+              <label>Page token<input id="facebook_page_token" data-setting="facebook.page_token" placeholder="Để trống nếu không đổi token" /></label>
+              <label>Target URL<input id="facebook_target_url" data-setting="facebook.target_url" /></label>
+              <label>Nghỉ giữa video<input id="facebook_delay" data-setting="facebook.delay" inputmode="numeric" /></label>
+              <label>Tiêu đề riêng<input id="facebook_custom_title" data-setting="facebook.custom_title" /></label>
+            </div>
+            <label class="check"><input id="facebook_attach" data-setting="facebook.attach" type="checkbox" /> Kết nối Chrome đã đăng nhập</label>
+            <p id="facebookTokenHint" class="hint"></p>
+            <label>Mô tả Facebook<textarea id="desc_facebook" data-description="facebook"></textarea></label>
+            <div class="actions">
+              <button data-action="facebook.login">Mở Facebook đăng nhập</button>
+              <button data-action="facebook.upload_selected">Upload video chọn</button>
+              <button data-delete-selected="facebook" class="danger">Xóa video chọn</button>
+              <button data-action="facebook.upload_all" class="primary">Upload tất cả</button>
+              <button data-sequence="facebook" class="primary">Upload lần lượt account tick</button>
+              <button data-stop="facebook" class="danger">Dừng</button>
+            </div>
+            <p id="facebookActionStatus" class="action-status" aria-live="polite"></p>
+          </section>
+        </div>
+      </section>
+
+      <section id="instagram" class="page">
+        <div class="grid two">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Video Instagram</h2>
+              <span id="instagramCount" class="pill">0 video</span>
+            </div>
+            <div class="form-row">
+              <label>ThÆ° má»¥c upload</label>
+              <input id="instagram_upload_dir" data-setting="instagram.upload_dir" />
+            </div>
+            <div id="instagramVideos" class="video-list"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head"><h2>Äiá»u khiá»ƒn Instagram</h2></div>
+            <div class="account-box">
+              <label>TÃ i khoáº£n Ä‘ang dÃ¹ng<select id="instagramAccountSelect" data-account-select="instagram"></select></label>
+              <button type="button" data-add-account="instagram">ThÃªm account</button>
+              <div id="instagramAccountList" class="account-list"></div>
+            </div>
+            <div class="form-grid">
+              <label>Nghá»‰ giá»¯a video<input id="instagram_delay" data-setting="instagram.delay" inputmode="numeric" /></label>
+              <label>TiÃªu Ä‘á» riÃªng<input id="instagram_custom_title" data-setting="instagram.custom_title" /></label>
+            </div>
+            <label class="check"><input id="instagram_attach" data-setting="instagram.attach" type="checkbox" /> Káº¿t ná»‘i Chrome Ä‘Ã£ Ä‘Äƒng nháº­p</label>
+            <label>MÃ´ táº£ Instagram<textarea id="desc_instagram" data-description="instagram"></textarea></label>
+            <div class="actions">
+              <button data-action="instagram.login">Má»Ÿ Instagram Ä‘Äƒng nháº­p</button>
+              <button data-action="instagram.upload_selected">Upload video chá»n</button>
+              <button data-delete-selected="instagram" class="danger">XÃ³a video chá»n</button>
+              <button data-action="instagram.upload_all" class="primary">Upload táº¥t cáº£</button>
+              <button data-sequence="instagram" class="primary">Upload láº§n lÆ°á»£t account tick</button>
+              <button data-stop="instagram" class="danger">Dá»«ng</button>
+            </div>
+            <p id="instagramActionStatus" class="action-status" aria-live="polite"></p>
+          </section>
+        </div>
+      </section>
+
+      <section id="zernio" class="page">
+        <div class="grid two">
+          <section class="panel">
+            <div class="panel-head"><h2>Video Zernio</h2><span id="zernioCount" class="pill">0 video</span></div>
+            <div class="form-row"><label>Thu muc upload</label><input id="zernio_upload_dir" data-setting="zernio.upload_dir" /></div>
+            <div id="zernioVideos" class="video-list"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head"><h2>Dieu khien Zernio</h2></div>
+            <div class="form-grid">
+              <label>API key(s)<input id="zernio_api_key" data-setting="zernio.api_key" type="password" placeholder="1 hoac nhieu key, cach nhau bang dau phay" /></label>
+              <label>Platforms<input id="zernio_platforms" data-setting="zernio.platforms" placeholder="facebook,instagram,tiktok,youtube" /></label>
+              <label>Account IDs (tuy chon)<input id="zernio_account_ids" data-setting="zernio.account_ids" placeholder="ID1,ID2; de trong = tu lay" /></label>
+              <label>Profile ID (tuy chon)<input id="zernio_profile_id" data-setting="zernio.profile_id" /></label>
+              <label>Tieu de rieng<input id="zernio_custom_title" data-setting="zernio.custom_title" /></label>
+              <label>Bat dau sau (phut)<input id="zernio_start_after_minutes" data-setting="zernio.start_after_minutes" inputmode="numeric" /></label>
+              <label>Khoang cach min (phut)<input id="zernio_min_gap_minutes" data-setting="zernio.min_gap_minutes" inputmode="numeric" /></label>
+              <label>Khoang cach max (phut)<input id="zernio_max_gap_minutes" data-setting="zernio.max_gap_minutes" inputmode="numeric" /></label>
+              <label>So video toi da<input id="zernio_max_videos" data-setting="zernio.max_videos" inputmode="numeric" /></label>
+            </div>
+            <p id="zernioKeyHint" class="hint"></p>
+            <p class="hint">Co the nhap nhieu API key Zernio de gom account tu nhieu tai khoan. Video qua 90 giay se tu cat ban Instagram 90s; qua 10 phut se tu cat ban TikTok 9m59s. Video qua 3 phut se dang YouTube ban day du va them Short 2m59s khung doc sau 5 phut.</p>
+            <p class="hint">Mo ta bai dang dung noi dung trong muc Mo ta chung cua tab YouTube.</p>
+            <div class="actions">
+              <button data-action="zernio.upload_selected">Hen lich video chon</button>
+              <button data-delete-selected="zernio" class="danger">Xoa video chon</button>
+              <button data-action="zernio.upload_all" class="primary">Hen lich tat ca (random)</button>
+              <button data-stop="zernio" class="danger">Dung</button>
+            </div>
+            <p id="zernioActionStatus" class="action-status" aria-live="polite"></p>
+          </section>
+        </div>
+      </section>
+
+      <section id="download" class="page">
+        <div class="grid two">
+          <section class="panel">
+            <div class="panel-head"><h2>Tải video</h2></div>
+            <label>Link, mỗi dòng một link<textarea id="downloadUrls" class="large"></textarea></label>
+            <div class="form-grid">
+              <label>Thư mục lưu<input id="download_download_dir" data-setting="download.download_dir" /></label>
+              <label>Định dạng<select id="download_format" data-setting="download.format"><option value="full_hd_1080">Full HD 1080p</option><option value="auto_with_audio">Auto có âm thanh</option><option value="best_mp4">Best MP4</option><option value="best">Best</option><option value="audio_m4a">Audio M4A</option><option value="tiktok_profile">TikTok profile</option></select></label>
+              <label>Template tên file<input id="download_output_template" data-setting="download.output_template" /></label>
+              <label>Lệnh thêm<input id="download_extra_args" data-setting="download.extra_args" /></label>
+            </div>
+            <label class="check"><input id="download_allow_playlist" data-setting="download.allow_playlist" type="checkbox" /> Cho phép playlist/profile</label>
+            <div class="actions">
+              <button data-action="download.start" class="primary">Tải video</button>
+              <button data-stop="download" class="danger">Dừng</button>
+            </div>
+          </section>
+          <section class="panel">
+            <div class="panel-head"><h2>Trạng thái</h2></div>
+            <div id="toolStatus" class="status-grid"></div>
+            <p class="hint">Nếu chạy trên VPS, hãy mở port bằng firewall hoặc dùng reverse proxy có mật khẩu trước khi đưa ra internet.</p>
+          </section>
+        </div>
+      </section>
+
+      <section id="logs" class="page">
+        <section class="panel">
+          <div class="panel-head"><h2>Log realtime</h2><button data-stop="" class="danger">Dừng tất cả</button></div>
+          <div class="log-grid">
+            <article><h3>YouTube</h3><pre id="log_youtube"></pre></article>
+            <article><h3>TikTok</h3><pre id="log_tiktok"></pre></article>
+            <article><h3>Facebook</h3><pre id="log_facebook"></pre></article>
+            <article><h3>Instagram</h3><pre id="log_instagram"></pre></article>
+            <article><h3>Zernio</h3><pre id="log_zernio"></pre></article>
+            <article><h3>Download</h3><pre id="log_download"></pre></article>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script src="/app.js?v=20260728-instagram-1"></script>
+  </body>
+</html>

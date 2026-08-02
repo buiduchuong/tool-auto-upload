@@ -1,0 +1,20 @@
+HUONG DAN DANG VIDEO QUA ZERNIO
+
+1. Dang nhap https://zernio.com va tao Profile.
+2. Ket noi Facebook/Instagram/TikTok/YouTube vao Profile.
+3. Vao Settings > API Keys, tao key va copy ngay khi Zernio hien thi.
+4. Mo panel, vao tab Zernio, dan API key va chon Platforms.
+   Neu dung nhieu tai khoan Zernio free, dan nhieu key cach nhau bang dau phay.
+5. De trong Account IDs va Profile ID neu muon dang len tat ca account da ket noi cua cac platform da chon.
+6. Chon video hoac bam Dang tat ca qua Zernio (lich random).
+
+Tool dung default_description.txt lam mo ta. Tieu de mac dinh la ten file.
+Neu da co URL video public truc tiep, co the dien vao zernio_media_urls.txt de bo qua buoc upload.
+TikTok duoc dat quyen rieng tu PUBLIC_TO_EVERYONE va bat cac co consent bat buoc.
+Video dai hon 90 giay se tu tao ban Instagram 90 giay; Facebook/YouTube van dung video day du.
+Video dai hon 10 phut se tu tao ban TikTok 9 phut 59 giay; YouTube/Facebook van dung video day du.
+Video dai hon 3 phut se dang YouTube 2 lan: ban day du va mot ban Short 2 phut 59 giay khung doc 9:16 sau do 5 phut.
+Zernio chi dang duoc len account dang o trang thai connected.
+Neu nhap nhieu API key, tool se tu lay account connected trong tung key va dang rieng theo tung key.
+Vi du key A co TikTok/YouTube, key B co Facebook/Instagram thi bam mot lan van co the len ca 4 nen tang.
+Khong hen lich qua 7 ngay sau luc upload media; tool se dung va bao loi neu lich vuot gioi han nay.

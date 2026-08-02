@@ -1,0 +1,40 @@
+HUONG DAN DAY TOOL LEN WINDOWS VPS 2012
+
+1. Copy goi len VPS
+- Copy file vps_light_package.zip len VPS.
+- Giai nen vao thu muc ngan, vi du: C:\mstar_tool
+- Khong nen dat trong Desktop neu VPS hay loi quyen; C:\mstar_tool de de chay hon.
+
+2. Cai moi truong
+- Cai Python 3.10 ban 64-bit tro len, nho tick Add Python to PATH.
+- Cai Google Chrome 109 cho Windows Server 2012/2012 R2.
+- Khong update Chrome len ban moi hon neu he dieu hanh khong ho tro.
+- Goi da kem chromedriver.exe ban 109 de hop voi Chrome 109.
+
+3. Chay lan dau
+- Mo Command Prompt trong C:\mstar_tool.
+- Chay: setup.bat
+- Chay: run_web_panel.bat
+- Mo trinh duyet vao: http://127.0.0.1:8080
+
+4. Dang nhap tai khoan
+- Trong web panel, bam mo Chrome dang nhap cho YouTube/TikTok/Facebook.
+- Dang nhap xong giu nguyen cua so Chrome do neu tool yeu cau attach.
+- Profile dang nhap se duoc tao lai tren VPS, khong copy profile Chrome tu may cu.
+
+5. Dua video len VPS
+- Copy video can upload vao thu muc: C:\mstar_tool\videos
+- Sua mo ta trong web panel hoac cac file:
+  default_description.txt
+  tiktok_description.txt
+  facebook_description.txt
+
+6. Truy cap panel tu may khac
+- Mac dinh panel chi mo tai 127.0.0.1 cho an toan.
+- Neu can mo tu may khac, dat WEB_PANEL_HOST=0.0.0.0 va mo firewall cong 8080.
+- Nen dat mat khau manh trong panel_settings.json hoac dung show_credentials.bat de xem thong tin dang nhap.
+
+7. Neu Chrome/Selenium loi
+- Kiem tra Chrome dang la ban 109.
+- Kiem tra chromedriver.exe nam cung thu muc main.py.
+- Neu Chrome cai o duong dan la, truyen duong dan chrome.exe trong cau hinh account/panel.

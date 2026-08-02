@@ -1,0 +1,32 @@
+HUONG DAN BAO MAT KHI DUA TOOL LEN VPS
+
+1. Khong mo cong 8080 truc tiep ra internet
+- Mac dinh web_panel.py chi lang nghe 127.0.0.1.
+- Neu can truy cap tu ngoai, nen dung Cloudflare Tunnel hoac reverse proxy HTTPS.
+- Khong nen public http://IP_VPS:8080 neu khong co firewall/proxy.
+
+2. Web panel da co mat khau
+- Chay show_credentials.bat tren VPS de xem:
+  - Web panel username/password
+  - ChatGPT API Bearer token
+- Thong tin nay duoc luu trong panel_settings.json.
+- Neu bi lo, hay doi password/token trong panel_settings.json roi khoi dong lai web panel.
+
+3. ChatGPT API dung token rieng
+- GPT Actions chi duoc goi cac endpoint /gpt/... khi co Bearer token.
+- Khong dua token vao noi cong khai, video, mo ta, chat public.
+
+4. Cach an toan de mo ra internet
+- Uu tien Cloudflare Tunnel + Access login.
+- Hoac Nginx/Caddy reverse proxy HTTPS + Basic Auth + firewall chi mo 80/443.
+- Neu chi dung ca nhan, co the Remote Desktop vao VPS roi mo http://127.0.0.1:8080 tren VPS.
+
+5. Firewall goi y
+- Khong mo inbound port 8080 public.
+- Chi mo port can thiet cho Remote Desktop/VPN/HTTPS.
+- Neu bat buoc mo port 8080, gioi han IP cua rieng ban.
+
+6. Nguyen tac van hanh
+- Moi account nen co profile rieng.
+- Khong copy Chrome profile cu neu khong can.
+- Chay cleanup_vps_light.bat dinh ky de don cache/debug/temp.

@@ -1,0 +1,84 @@
+GOI TOI THIEU DE DUA TOOL LEN WINDOWS VPS
+
+BAT BUOC GIU
+- main.py
+- tiktok_upload.py
+- facebook_upload.py
+- zernio_upload.py
+- web_panel.py
+- show_credentials.py
+- web_static/
+- requirements.txt
+- setup.bat
+- run_web_panel.bat
+- show_credentials.bat
+- cleanup_vps_light.bat
+- chromedriver.exe
+- ffmpeg.exe
+- ffprobe.exe
+- yt-dlp.exe
+- default_description.txt
+- tiktok_description.txt
+- facebook_description.txt
+- title_hashtags.txt
+- description_hashtags.txt
+- panel_settings.json
+- archive_video.txt
+- zernio_media_urls.txt
+- HUONG_DAN_ZERNIO.txt
+- HUONG_DAN_CHATGPT_API.txt
+- HUONG_DAN_BAO_MAT_VPS.txt
+- HUONG_DAN_WEB_PANEL.txt
+- HUONG_DAN_WINDOWS_2012_VPS.txt
+- videos/                  Neu muon mang video hien tai len VPS
+- TikTok_Channel/          Neu dang dung thu muc nay de upload TikTok
+- accounts/                Neu da tao multi-account tren may nay va muon mang profile do len VPS
+- deleted_videos/          Tuy chon, day la thung rac noi bo khi xoa video bang panel/API
+
+CAN GIU NEU VAN MUON DUNG PANEL DESKTOP CU
+- panel.py
+- run_panel.bat
+- run_login.bat
+- run_tiktok_login.bat
+- run_facebook_login.bat
+- run_upload_1_video_public_same_description.bat
+- run_upload_all_public_same_description.bat
+- run_upload_tiktok_all.bat
+- run_upload_facebook_all.bat
+- run_download_tiktok_profile.bat
+- README_CHAY_NHANH.txt
+- HUONG_DAN_GUI_MAY_KHAC.txt
+- HUONG_DAN_CPANEL_TIKTOK.txt
+- HUONG_DAN_WEB_PANEL.txt
+
+KHONG NEN COPY LEN VPS NEU MUON NHE
+- chrome-profile/
+- chrome-profile-facebook/
+- chrome-profile-tiktok/
+Ly do: day la du lieu dang nhap/cache Chrome cua may hien tai, rat nang va co the khong hop may VPS. Len VPS nen dang nhap lai bang nut Mo Chrome dang nhap.
+
+LUU Y MULTI-ACCOUNT
+- Neu len VPS moi, nen tao/dang nhap lai account truc tiep tren VPS.
+- Moi account can profile_dir va debug_port rieng.
+- Mac dinh account moi duoc tao trong accounts/<platform>/<account_id>/chrome-profile.
+
+CO THE XOA / KHONG CAN DONG GOI
+- __pycache__/
+- facebook_debug/
+- tiktok_debug/
+- facebook_upload_temp/
+Ly do: day la cache, anh/html debug loi, va video tam da convert.
+
+TUY NHU CAU
+- uploaded_success/
+- uploaded_facebook_success/
+- uploaded_tiktok_success/
+Day la video da upload thanh cong. Co the giu de luu lich su, hoac khong copy neu muon nhe.
+
+YEU CAU VPS
+- Windows VPS.
+- Cai Google Chrome.
+- Cai Python 3 va tick Add Python to PATH.
+- Chay setup.bat lan dau.
+- Chay run_web_panel.bat, mo http://127.0.0.1:8080 tren VPS.
+- Neu muon truy cap tu may khac: dat WEB_PANEL_HOST=0.0.0.0 va mo firewall/reverse proxy co mat khau.
