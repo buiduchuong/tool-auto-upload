@@ -43,6 +43,12 @@ jobs:
           if [ "${TARGET_OS}" = "linux" ]; then
             cat > deploy-vps.sh <<'EOS'
           set -euo pipefail
+          if [ -d "${DEPLOY_PATH}" ] && [ ! -d "${DEPLOY_PATH}/.git" ]; then
+            mv "${DEPLOY_PATH}" "${DEPLOY_PATH}.backup.$(date +%Y%m%d%H%M%S)"
+          fi
+          if [ -d "${DEPLOY_PATH}/.git" ] && ! git -C "${DEPLOY_PATH}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+            mv "${DEPLOY_PATH}" "${DEPLOY_PATH}.broken.$(date +%Y%m%d%H%M%S)"
+          fi
           if [ ! -d "${DEPLOY_PATH}/.git" ]; then
             mkdir -p "${DEPLOY_PATH}"
             git clone "${REPO_URL}" "${DEPLOY_PATH}"
@@ -61,6 +67,18 @@ jobs:
           \$DeployPath = "${VPS_DEPLOY_PATH}"
           \$RepoUrl = "${REPO_URL}"
 
+          \$GitPath = Join-Path \$DeployPath ".git"
+          if ((Test-Path -LiteralPath \$DeployPath) -and -not (Test-Path -LiteralPath \$GitPath)) {
+              \$BackupPath = "\$DeployPath.backup.\$(Get-Date -Format yyyyMMddHHmmss)"
+              Move-Item -LiteralPath \$DeployPath -Destination \$BackupPath
+          }
+          if (Test-Path -LiteralPath \$GitPath) {
+              git -C \$DeployPath rev-parse --is-inside-work-tree *> \$null
+              if (\$LASTEXITCODE -ne 0) {
+                  \$BrokenPath = "\$DeployPath.broken.\$(Get-Date -Format yyyyMMddHHmmss)"
+                  Move-Item -LiteralPath \$DeployPath -Destination \$BrokenPath
+              }
+          }
           if (-not (Test-Path -LiteralPath (Join-Path \$DeployPath ".git"))) {
               New-Item -ItemType Directory -Path \$DeployPath -Force | Out-Null
               git clone \$RepoUrl \$DeployPath
