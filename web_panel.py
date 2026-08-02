@@ -61,6 +61,13 @@ MAX_LOG_LINES = 200
 GROUPS = ("youtube", "tiktok", "facebook", "instagram", "ayrshare", "zernio", "download")
 
 
+def console_log(message: str) -> None:
+    try:
+        print(message)
+    except OSError:
+        pass
+
+
 def read_text(path: Path) -> str:
     if not path.exists():
         return ""
@@ -1449,7 +1456,7 @@ def bind_server(host: str, port: int) -> tuple[ThreadingHTTPServer, int]:
             last_error = exc
             if explicit_port:
                 break
-            print(f"[CANH BAO] Khong mo duoc cong {candidate}: {exc}. Dang thu cong tiep theo...")
+            console_log(f"[CANH BAO] Khong mo duoc cong {candidate}: {exc}. Dang thu cong tiep theo...")
     raise RuntimeError(f"Khong mo duoc web panel tren {host}:{port}. Loi cuoi: {last_error}")
 
 
@@ -1462,13 +1469,13 @@ def main() -> None:
     server, actual_port = bind_server(host, port)
     panel_url = f"http://{host}:{actual_port}"
     WEB_PANEL_URL_FILE.write_text(panel_url, encoding="utf-8")
-    print(f"Web panel dang chay: {panel_url}")
-    print("Nhan Ctrl+C de dung.")
+    console_log(f"Web panel dang chay: {panel_url}")
+    console_log("Nhan Ctrl+C de dung.")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         jobs.stop()
-        print("\nDa dung web panel.")
+        console_log("\nDa dung web panel.")
     finally:
         if WEB_PANEL_URL_FILE.exists():
             WEB_PANEL_URL_FILE.unlink()
