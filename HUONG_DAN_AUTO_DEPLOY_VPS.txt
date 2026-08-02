@@ -2,12 +2,14 @@ HUONG DAN TU DONG DAY CODE LEN VPS KHI PUSH GITHUB
 
 CACH HOAT DONG
 - Moi lan push code len nhanh main, GitHub Actions se SSH vao VPS.
-- Neu VPS chua co source: workflow se git clone repo vao thu muc deploy.
-- Neu VPS da co source: workflow se git fetch va git reset --hard origin/main.
+- GitHub Actions se dong goi source thanh file ZIP roi copy sang VPS bang SSH/SCP.
+- VPS se giai nen de source moi vao VPS_DEPLOY_PATH.
+- Cac file runtime tren VPS nhu .venv, panel_settings.json, Chrome profile, video se duoc giu lai neu khong nam trong goi source.
+- VPS khong can dang nhap GitHub va khong can git clone/git pull de auto deploy.
 - Thong tin VPS khong luu trong source, ma luu trong GitHub Secrets.
 
 LUU Y QUAN TRONG
-- Workflow nay phu hop nhat voi VPS co SSH va da cai Git.
+- Workflow nay can VPS co SSH. Git tren VPS khong bat buoc cho auto deploy.
 - Neu VPS la Windows, can bat OpenSSH Server hoac dung cach Remote Desktop roi pull thu cong.
 - Tool nay la tool Windows, workflow chi cap nhat source tren VPS. Viec chay web panel van dung run_web_panel.bat tren VPS.
 - Khong dua password, token, private key vao file source.

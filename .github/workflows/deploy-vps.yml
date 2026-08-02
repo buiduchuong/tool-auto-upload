@@ -14,6 +14,28 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Build deploy package
+        run: |
+          set -euo pipefail
+          rm -f deploy-package.zip
+          zip -r deploy-package.zip . \
+            -x ".git/*" \
+            -x ".venv/*" \
+            -x "__pycache__/*" \
+            -x "accounts/*" \
+            -x "chrome-profile*/*" \
+            -x "videos/*" \
+            -x "TikTok_Channel/*" \
+            -x "uploaded_*/*" \
+            -x "deleted_videos/*" \
+            -x "*_upload_temp/*" \
+            -x "instagram_debug/*" \
+            -x "vps_light_package/*" \
+            -x "vps_light_package.zip"
+
       - name: Deploy over SSH
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
@@ -22,7 +44,6 @@ jobs:
           VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
           VPS_DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH }}
           VPS_OS: ${{ secrets.VPS_OS }}
-          REPO_URL: https://github.com/${{ github.repository }}.git
         run: |
           set -euo pipefail
 
@@ -41,52 +62,42 @@ jobs:
           ssh-keyscan -p "${SSH_PORT}" -H "${VPS_HOST}" >> ~/.ssh/known_hosts 2>/dev/null
 
           if [ "${TARGET_OS}" = "linux" ]; then
+            scp -i ~/.ssh/deploy_key -P "${SSH_PORT}" deploy-package.zip "${VPS_USER}@${VPS_HOST}:/tmp/tool-auto-upload.zip"
             cat > deploy-vps.sh <<'EOS'
           set -euo pipefail
-          if [ -d "${DEPLOY_PATH}" ] && [ ! -d "${DEPLOY_PATH}/.git" ]; then
-            mv "${DEPLOY_PATH}" "${DEPLOY_PATH}.backup.$(date +%Y%m%d%H%M%S)"
-          fi
-          if [ -d "${DEPLOY_PATH}/.git" ] && ! git -C "${DEPLOY_PATH}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-            mv "${DEPLOY_PATH}" "${DEPLOY_PATH}.broken.$(date +%Y%m%d%H%M%S)"
-          fi
-          if [ ! -d "${DEPLOY_PATH}/.git" ]; then
-            mkdir -p "${DEPLOY_PATH}"
-            git clone "${REPO_URL}" "${DEPLOY_PATH}"
-          fi
-          cd "${DEPLOY_PATH}"
-          git fetch origin main
-          git reset --hard origin/main
+          mkdir -p "${DEPLOY_PATH}"
+          unzip -oq /tmp/tool-auto-upload.zip -d "${DEPLOY_PATH}"
           echo "Deploy complete: ${DEPLOY_PATH}"
           EOS
             scp -i ~/.ssh/deploy_key -P "${SSH_PORT}" deploy-vps.sh "${VPS_USER}@${VPS_HOST}:/tmp/deploy-tool-auto-upload.sh"
             ssh -i ~/.ssh/deploy_key -p "${SSH_PORT}" "${VPS_USER}@${VPS_HOST}" \
-              "DEPLOY_PATH='${VPS_DEPLOY_PATH}' REPO_URL='${REPO_URL}' bash /tmp/deploy-tool-auto-upload.sh"
+              "DEPLOY_PATH='${VPS_DEPLOY_PATH}' bash /tmp/deploy-tool-auto-upload.sh"
           else
+            scp -i ~/.ssh/deploy_key -P "${SSH_PORT}" deploy-package.zip "${VPS_USER}@${VPS_HOST}:C:/Windows/Temp/tool-auto-upload.zip"
             cat > deploy-vps.ps1 <<EOS
           \$ErrorActionPreference = "Stop"
           \$DeployPath = "${VPS_DEPLOY_PATH}"
-          \$RepoUrl = "${REPO_URL}"
+          \$PackagePath = "C:/Windows/Temp/tool-auto-upload.zip"
 
-          \$GitPath = Join-Path \$DeployPath ".git"
-          if ((Test-Path -LiteralPath \$DeployPath) -and -not (Test-Path -LiteralPath \$GitPath)) {
-              \$BackupPath = "\$DeployPath.backup.\$(Get-Date -Format yyyyMMddHHmmss)"
-              Move-Item -LiteralPath \$DeployPath -Destination \$BackupPath
-          }
-          if (Test-Path -LiteralPath \$GitPath) {
-              git -C \$DeployPath rev-parse --is-inside-work-tree *> \$null
-              if (\$LASTEXITCODE -ne 0) {
-                  \$BrokenPath = "\$DeployPath.broken.\$(Get-Date -Format yyyyMMddHHmmss)"
-                  Move-Item -LiteralPath \$DeployPath -Destination \$BrokenPath
+          New-Item -ItemType Directory -Path \$DeployPath -Force | Out-Null
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          \$Archive = [System.IO.Compression.ZipFile]::OpenRead(\$PackagePath)
+          try {
+              foreach (\$Entry in \$Archive.Entries) {
+                  if ([string]::IsNullOrEmpty(\$Entry.Name)) {
+                      continue
+                  }
+                  \$TargetPath = Join-Path \$DeployPath \$Entry.FullName
+                  \$TargetDir = Split-Path -Parent \$TargetPath
+                  if (-not (Test-Path -LiteralPath \$TargetDir)) {
+                      New-Item -ItemType Directory -Path \$TargetDir -Force | Out-Null
+                  }
+                  [System.IO.Compression.ZipFileExtensions]::ExtractToFile(\$Entry, \$TargetPath, \$true)
               }
           }
-          if (-not (Test-Path -LiteralPath (Join-Path \$DeployPath ".git"))) {
-              New-Item -ItemType Directory -Path \$DeployPath -Force | Out-Null
-              git clone \$RepoUrl \$DeployPath
+          finally {
+              \$Archive.Dispose()
           }
-
-          Set-Location \$DeployPath
-          git fetch origin main
-          git reset --hard origin/main
           Write-Output "Deploy complete: \$DeployPath"
           EOS
             scp -i ~/.ssh/deploy_key -P "${SSH_PORT}" deploy-vps.ps1 "${VPS_USER}@${VPS_HOST}:C:/Windows/Temp/deploy-tool-auto-upload.ps1"
