@@ -1,0 +1,17 @@
+HUONG DAN COPY TOOL SANG VPS
+
+CACH DUNG NHANH
+1. Copy file vps_light_package.zip sang VPS.
+2. Giai nen thanh thu muc:
+   C:\Users\Administrator\Desktop\tool-auto-upload
+3. Mo thu muc do va bam:
+   CHAY_TREN_VPS.bat
+
+File CHAY_TREN_VPS.bat se tu chay setup.bat, sau do mo run_web_panel.bat.
+
+LUU Y
+- Lan dau setup co the mat vai phut de cai Python/.venv/thu vien.
+- Can cai Google Chrome tren VPS de dung upload qua trinh duyet.
+- Token, mat khau, Chrome profile va video khong duoc copy tu may goc sang goi nay.
+- Neu muon cap nhat ban moi, copy ZIP moi sang VPS va giai nen de len thu muc tool cu.
+- Neu dang chay web panel, hay dong cua so web panel cu truoc khi copy de.
