@@ -5,6 +5,7 @@ cd /d "%~dp0"
 
 set "PYTHONIOENCODING=utf-8"
 set "PANEL_URL=http://127.0.0.1:8080"
+set "PANEL_URL_FILE=web_panel_url.txt"
 set "PYTHON_CMD="
 
 powershell -NoProfile -Command "try { $r = Invoke-WebRequest -UseBasicParsing -Uri '%PANEL_URL%/api/state' -TimeoutSec 2; if ($r.StatusCode -eq 200) { exit 0 } } catch {}; exit 1" >nul 2>nul
@@ -51,15 +52,17 @@ if not exist "web_static\index.html" (
     exit /b 1
 )
 
+if exist "%PANEL_URL_FILE%" del "%PANEL_URL_FILE%" >nul 2>nul
+
 echo Dang khoi dong web panel bang %PYTHON_CMD%...
-echo Trinh duyet se tu mo tai %PANEL_URL%
-start "" powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Seconds 2; Start-Process '%PANEL_URL%'"
+echo Trinh duyet se tu mo khi web panel san sang.
+start "" powershell -NoProfile -WindowStyle Hidden -Command "$file = Join-Path '%~dp0' '%PANEL_URL_FILE%'; for ($i = 0; $i -lt 40; $i++) { if (Test-Path -LiteralPath $file) { $url = (Get-Content -LiteralPath $file -Raw).Trim(); if ($url) { Start-Process $url; exit 0 } }; Start-Sleep -Milliseconds 500 }; Start-Process '%PANEL_URL%'"
 
 %PYTHON_CMD% web_panel.py
 set "PANEL_EXIT=%ERRORLEVEL%"
 
 echo.
 echo Web panel da dung, ma loi: %PANEL_EXIT%
-if "%PANEL_EXIT%"=="1" echo Neu thay loi cong 8080, hay dong tien trinh cu hoac khoi dong lai VPS.
+if "%PANEL_EXIT%"=="1" echo Neu thay loi cong web panel, hay dong tien trinh cu hoac khoi dong lai VPS.
 pause
 exit /b %PANEL_EXIT%

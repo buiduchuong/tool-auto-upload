@@ -28,6 +28,7 @@ description_hashtags.txt
 *_last_run.log
 *_media_urls.txt
 archive_video.txt
+web_panel_url.txt
 
 # Generated packages/build output
 vps_light_package/

@@ -50,6 +50,7 @@ FACEBOOK_PROFILE_DIR = BASE_DIR / "chrome-profile-facebook"
 INSTAGRAM_PROFILE_DIR = BASE_DIR / "chrome-profile-instagram"
 TIKTOK_ARCHIVE_FILE = BASE_DIR / "archive_video.txt"
 DELETED_VIDEOS_DIR = BASE_DIR / "deleted_videos"
+WEB_PANEL_URL_FILE = BASE_DIR / "web_panel_url.txt"
 
 YOUTUBE_DEBUG_PORT = 9222
 TIKTOK_DEBUG_PORT = 9223
@@ -1437,18 +1438,40 @@ def run_action(payload: dict[str, Any]) -> dict[str, Any]:
     return {"ok": True, "group": group}
 
 
+def bind_server(host: str, port: int) -> tuple[ThreadingHTTPServer, int]:
+    explicit_port = bool(os.environ.get("WEB_PANEL_PORT"))
+    ports = [port] if explicit_port else list(range(port, port + 20))
+    last_error: OSError | None = None
+    for candidate in ports:
+        try:
+            return ThreadingHTTPServer((host, candidate), WebPanelHandler), candidate
+        except OSError as exc:
+            last_error = exc
+            if explicit_port:
+                break
+            print(f"[CANH BAO] Khong mo duoc cong {candidate}: {exc}. Dang thu cong tiep theo...")
+    raise RuntimeError(f"Khong mo duoc web panel tren {host}:{port}. Loi cuoi: {last_error}")
+
+
 def main() -> None:
     port = int(os.environ.get("WEB_PANEL_PORT", "8080"))
     host = os.environ.get("WEB_PANEL_HOST", "127.0.0.1")
     STATIC_DIR.mkdir(exist_ok=True)
-    server = ThreadingHTTPServer((host, port), WebPanelHandler)
-    print(f"Web panel đang chạy: http://{host}:{port}")
+    if WEB_PANEL_URL_FILE.exists():
+        WEB_PANEL_URL_FILE.unlink()
+    server, actual_port = bind_server(host, port)
+    panel_url = f"http://{host}:{actual_port}"
+    WEB_PANEL_URL_FILE.write_text(panel_url, encoding="utf-8")
+    print(f"Web panel đang chạy: {panel_url}")
     print("Nhấn Ctrl+C để dừng.")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         jobs.stop()
         print("\nĐã dừng web panel.")
+    finally:
+        if WEB_PANEL_URL_FILE.exists():
+            WEB_PANEL_URL_FILE.unlink()
 
 
 if __name__ == "__main__":
