@@ -1,0 +1,78 @@
+HUONG DAN TU DONG DAY CODE LEN VPS KHI PUSH GITHUB
+
+CACH HOAT DONG
+- Moi lan push code len nhanh main, GitHub Actions se SSH vao VPS.
+- Neu VPS chua co source: workflow se git clone repo vao thu muc deploy.
+- Neu VPS da co source: workflow se git fetch va git reset --hard origin/main.
+- Thong tin VPS khong luu trong source, ma luu trong GitHub Secrets.
+
+LUU Y QUAN TRONG
+- Workflow nay phu hop nhat voi VPS co SSH va da cai Git.
+- Neu VPS la Windows, can bat OpenSSH Server hoac dung cach Remote Desktop roi pull thu cong.
+- Tool nay la tool Windows, workflow chi cap nhat source tren VPS. Viec chay web panel van dung run_web_panel.bat tren VPS.
+- Khong dua password, token, private key vao file source.
+
+BUOC 1: TAO SSH KEY DEPLOY
+Tren may cua ban hoac tren VPS, tao key rieng cho deploy:
+
+ssh-keygen -t ed25519 -C "github-actions-deploy" -f github_actions_deploy
+
+Se co 2 file:
+- github_actions_deploy: private key, dua vao GitHub Secret VPS_SSH_KEY
+- github_actions_deploy.pub: public key, them vao VPS trong authorized_keys
+
+BUOC 2: THEM PUBLIC KEY VAO VPS
+Neu VPS Linux:
+
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+cat github_actions_deploy.pub >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+
+Neu VPS Windows:
+- Cai/bat OpenSSH Server.
+- Them noi dung file github_actions_deploy.pub vao:
+  C:\Users\<ten-user>\.ssh\authorized_keys
+
+BUOC 3: THEM GITHUB SECRETS
+Vao repo GitHub:
+Settings -> Secrets and variables -> Actions -> New repository secret
+
+Them cac secret sau:
+
+VPS_HOST
+IP hoac domain cua VPS. Vi du: 1.2.3.4
+
+VPS_PORT
+Cong SSH. Neu khong dien thi mac dinh la 22.
+
+VPS_USER
+User SSH tren VPS. Vi du: root hoac Administrator.
+
+VPS_SSH_KEY
+Noi dung private key trong file github_actions_deploy.
+
+VPS_DEPLOY_PATH
+Thu muc source tren VPS.
+Vi du Linux: /opt/tool-auto-upload
+Vi du Windows OpenSSH: C:/tool-auto-upload
+
+VPS_OS
+Nhap windows neu VPS la Windows.
+Nhap linux neu VPS la Linux.
+Neu khong tao secret nay, workflow mac dinh la windows.
+
+BUOC 4: PUSH CODE
+Moi lan may local push:
+
+git add .
+git commit -m "Cap nhat tool"
+git push
+
+GitHub se tu chay workflow Deploy to VPS.
+
+KIEM TRA
+Vao GitHub repo -> tab Actions -> Deploy to VPS de xem log.
+
+NEU MUON CHAY THU CONG
+Vao GitHub repo -> Actions -> Deploy to VPS -> Run workflow.

@@ -12,6 +12,7 @@ SETUP KHI COPY SANG MAY KHAC / VPS
 - Setup se tu kiem tra Python 3.10+, Chrome, tao .venv, cai thu vien, tao cac thu muc can thiet.
 - Sau khi setup xong, chay run_web_panel.bat de mo web panel.
 - Cac file run_*.bat se tu uu tien dung Python trong .venv sau khi setup.
+- Neu muon push code len GitHub roi VPS tu cap nhat source, doc file HUONG_DAN_AUTO_DEPLOY_VPS.txt.
 
 CACH DE NHAT: MO PANEL QUAN LY
 Chay file run_panel.bat

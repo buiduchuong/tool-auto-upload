@@ -1,0 +1,77 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH }}
+          VPS_OS: ${{ secrets.VPS_OS }}
+          REPO_URL: https://github.com/${{ github.repository }}.git
+        run: |
+          set -euo pipefail
+
+          if [ -z "${VPS_HOST}" ] || [ -z "${VPS_USER}" ] || [ -z "${VPS_SSH_KEY}" ] || [ -z "${VPS_DEPLOY_PATH}" ]; then
+            echo "Missing required secrets: VPS_HOST, VPS_USER, VPS_SSH_KEY, VPS_DEPLOY_PATH"
+            exit 1
+          fi
+
+          SSH_PORT="${VPS_PORT:-22}"
+          TARGET_OS="$(printf '%s' "${VPS_OS:-windows}" | tr '[:upper:]' '[:lower:]')"
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${VPS_SSH_KEY}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${SSH_PORT}" -H "${VPS_HOST}" >> ~/.ssh/known_hosts 2>/dev/null
+
+          if [ "${TARGET_OS}" = "linux" ]; then
+            cat > deploy-vps.sh <<'EOS'
+          set -euo pipefail
+          if [ ! -d "${DEPLOY_PATH}/.git" ]; then
+            mkdir -p "${DEPLOY_PATH}"
+            git clone "${REPO_URL}" "${DEPLOY_PATH}"
+          fi
+          cd "${DEPLOY_PATH}"
+          git fetch origin main
+          git reset --hard origin/main
+          echo "Deploy complete: ${DEPLOY_PATH}"
+          EOS
+            scp -i ~/.ssh/deploy_key -P "${SSH_PORT}" deploy-vps.sh "${VPS_USER}@${VPS_HOST}:/tmp/deploy-tool-auto-upload.sh"
+            ssh -i ~/.ssh/deploy_key -p "${SSH_PORT}" "${VPS_USER}@${VPS_HOST}" \
+              "DEPLOY_PATH='${VPS_DEPLOY_PATH}' REPO_URL='${REPO_URL}' bash /tmp/deploy-tool-auto-upload.sh"
+          else
+            cat > deploy-vps.ps1 <<EOS
+          \$ErrorActionPreference = "Stop"
+          \$DeployPath = "${VPS_DEPLOY_PATH}"
+          \$RepoUrl = "${REPO_URL}"
+
+          if (-not (Test-Path -LiteralPath (Join-Path \$DeployPath ".git"))) {
+              New-Item -ItemType Directory -Path \$DeployPath -Force | Out-Null
+              git clone \$RepoUrl \$DeployPath
+          }
+
+          Set-Location \$DeployPath
+          git fetch origin main
+          git reset --hard origin/main
+          Write-Output "Deploy complete: \$DeployPath"
+          EOS
+            scp -i ~/.ssh/deploy_key -P "${SSH_PORT}" deploy-vps.ps1 "${VPS_USER}@${VPS_HOST}:C:/Windows/Temp/deploy-tool-auto-upload.ps1"
+            ssh -i ~/.ssh/deploy_key -p "${SSH_PORT}" "${VPS_USER}@${VPS_HOST}" \
+              "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Windows/Temp/deploy-tool-auto-upload.ps1"
+          fi
