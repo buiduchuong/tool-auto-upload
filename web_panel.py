@@ -1462,13 +1462,13 @@ def main() -> None:
     server, actual_port = bind_server(host, port)
     panel_url = f"http://{host}:{actual_port}"
     WEB_PANEL_URL_FILE.write_text(panel_url, encoding="utf-8")
-    print(f"Web panel đang chạy: {panel_url}")
-    print("Nhấn Ctrl+C để dừng.")
+    print(f"Web panel dang chay: {panel_url}")
+    print("Nhan Ctrl+C de dung.")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         jobs.stop()
-        print("\nĐã dừng web panel.")
+        print("\nDa dung web panel.")
     finally:
         if WEB_PANEL_URL_FILE.exists():
             WEB_PANEL_URL_FILE.unlink()
