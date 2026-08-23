@@ -240,15 +240,17 @@
             <label>Link, mỗi dòng một link<textarea id="downloadUrls" class="large"></textarea></label>
             <div class="form-grid">
               <label>Thư mục lưu<input id="download_download_dir" data-setting="download.download_dir" /></label>
-              <label>Định dạng<select id="download_format" data-setting="download.format"><option value="full_hd_1080">Full HD 1080p</option><option value="auto_with_audio">Auto có âm thanh</option><option value="best_mp4">Best MP4</option><option value="best">Best</option><option value="audio_m4a">Audio M4A</option><option value="tiktok_profile">TikTok profile</option></select></label>
+              <label>Định dạng<select id="download_format" data-setting="download.format"><option value="full_hd_1080">Full HD 1080p</option><option value="auto_with_audio">Auto có âm thanh</option><option value="best_mp4">Best MP4</option><option value="best">Best</option><option value="audio_m4a">Audio M4A</option><option value="tiktok_profile">TikTok profile</option><option value="facebook_profile">Facebook profile</option></select></label>
               <label>Template tên file<input id="download_output_template" data-setting="download.output_template" /></label>
               <label>Lệnh thêm<input id="download_extra_args" data-setting="download.extra_args" /></label>
             </div>
             <label class="check"><input id="download_allow_playlist" data-setting="download.allow_playlist" type="checkbox" /> Cho phép playlist/profile</label>
             <div class="actions">
               <button data-action="download.start" class="primary">Tải video</button>
+              <button id="facebookProfilePreset">Mẫu tải profile Facebook</button>
               <button data-stop="download" class="danger">Dừng</button>
             </div>
+            <p class="hint">Facebook profile sẽ dùng Chrome Facebook đã đăng nhập để quét cả tab Reels và Videos; video đã tải sẽ được bỏ qua ở lần sau.</p>
           </section>
           <section class="panel">
             <div class="panel-head"><h2>Trạng thái</h2></div>
@@ -274,6 +276,6 @@
     </main>
 
     <div id="toast" role="status" aria-live="polite"></div>
-    <script src="/app.js?v=20260728-instagram-1"></script>
+    <script src="/app.js?v=20260823-facebook-profile-1"></script>
   </body>
 </html>

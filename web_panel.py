@@ -39,6 +39,7 @@ PANEL_SETTINGS_FILE = BASE_DIR / "panel_settings.json"
 MAIN_FILE = BASE_DIR / "main.py"
 TIKTOK_UPLOAD_FILE = BASE_DIR / "tiktok_upload.py"
 FACEBOOK_UPLOAD_FILE = BASE_DIR / "facebook_upload.py"
+FACEBOOK_PROFILE_DOWNLOAD_FILE = BASE_DIR / "facebook_profile_download.py"
 INSTAGRAM_UPLOAD_FILE = BASE_DIR / "instagram_upload.py"
 AYRSHARE_UPLOAD_FILE = BASE_DIR / "ayrshare_upload.py"
 ZERNIO_UPLOAD_FILE = BASE_DIR / "zernio_upload.py"
@@ -49,6 +50,7 @@ TIKTOK_PROFILE_DIR = BASE_DIR / "chrome-profile-tiktok"
 FACEBOOK_PROFILE_DIR = BASE_DIR / "chrome-profile-facebook"
 INSTAGRAM_PROFILE_DIR = BASE_DIR / "chrome-profile-instagram"
 TIKTOK_ARCHIVE_FILE = BASE_DIR / "archive_video.txt"
+FACEBOOK_ARCHIVE_FILE = BASE_DIR / "facebook_archive_video.txt"
 DELETED_VIDEOS_DIR = BASE_DIR / "deleted_videos"
 WEB_PANEL_URL_FILE = BASE_DIR / "web_panel_url.txt"
 
@@ -85,9 +87,17 @@ def resolve_path(value: str | None, default_path: Path) -> Path:
     if not value:
         return default_path
     path = Path(value)
-    if not path.is_absolute():
-        path = BASE_DIR / path
-    return path
+    if path.is_absolute():
+        if path.exists():
+            return path
+        parts_lower = [part.lower() for part in path.parts]
+        for marker in (BASE_DIR.name.lower(), "mstar_youtube_public_same_desc_v4", "vps_light_package"):
+            if marker in parts_lower:
+                index = parts_lower.index(marker)
+                tail = path.parts[index + 1 :]
+                return BASE_DIR.joinpath(*tail)
+        return path
+    return BASE_DIR / path
 
 
 def path_for_command(path: Path) -> str:
@@ -706,6 +716,21 @@ def build_ytdlp_command(download: dict[str, Any], urls: list[str]) -> list[str]:
     base_cmd = ytdlp_cmd()
     if not base_cmd:
         raise RuntimeError("Không thấy yt-dlp. Hãy cài yt-dlp hoặc đặt yt-dlp.exe trong thư mục tool.")
+    if fmt == "facebook_profile":
+        cmd = script_cmd(FACEBOOK_PROFILE_DOWNLOAD_FILE) + [
+            "--output-dir", str(output_dir),
+            "--output-template", str(download.get("output_template") or "%(uploader)s/%(upload_date)s_%(id)s.%(ext)s"),
+            "--archive-file", str(FACEBOOK_ARCHIVE_FILE),
+            "--profile-dir", str(FACEBOOK_PROFILE_DIR),
+            "--debug-port", str(FACEBOOK_DEBUG_PORT),
+            "--yt-dlp-command-json", json.dumps(base_cmd),
+            "--ffmpeg-dir", str(BASE_DIR),
+        ]
+        extra = str(download.get("extra_args") or "").strip()
+        if extra:
+            cmd.append(f"--extra-args={extra}")
+        cmd.extend(urls)
+        return cmd
     cmd = base_cmd + ["--newline", "--ignore-errors", "-P", str(output_dir), "-o", str(download.get("output_template") or "%(title).200s.%(ext)s")]
     if fmt == "tiktok_profile":
         cmd.append("--ignore-config")
@@ -1195,7 +1220,7 @@ def gpt_openapi_schema(handler: WebPanelHandler) -> dict[str, Any]:
                         },
                         "format": {
                             "type": "string",
-                            "enum": ["full_hd_1080", "auto_with_audio", "best_mp4", "best", "audio_m4a", "tiktok_profile"],
+                            "enum": ["full_hd_1080", "auto_with_audio", "best_mp4", "best", "audio_m4a", "tiktok_profile", "facebook_profile"],
                         },
                         "download_dir": {"type": "string"},
                         "output_template": {"type": "string"},

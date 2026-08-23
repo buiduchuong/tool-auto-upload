@@ -204,7 +204,7 @@ def facebook_english_url(target_url: str = "https://www.facebook.com") -> str:
 
 
 def open_manual_chrome(chrome_binary: Optional[str] = None, target_url: str = "https://www.facebook.com") -> None:
-    PROFILE_DIR.mkdir(exist_ok=True)
+    PROFILE_DIR.mkdir(parents=True, exist_ok=True)
     chrome = find_chrome_executable(chrome_binary)
     cmd = [
         chrome,
@@ -219,7 +219,7 @@ def open_manual_chrome(chrome_binary: Optional[str] = None, target_url: str = "h
 
 
 def build_driver(chrome_binary: Optional[str] = None, attach: bool = False) -> WebDriver:
-    PROFILE_DIR.mkdir(exist_ok=True)
+    PROFILE_DIR.mkdir(parents=True, exist_ok=True)
     options = Options()
     options.add_argument("--start-maximized")
     options.add_argument("--log-level=3")

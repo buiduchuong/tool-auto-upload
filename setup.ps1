@@ -177,6 +177,7 @@ $defaultFiles = @{
     "title_hashtags.txt" = ""
     "description_hashtags.txt" = ""
     "archive_video.txt" = ""
+    "facebook_archive_video.txt" = ""
     "zernio_media_urls.txt" = ""
     "ayrshare_media_urls.txt" = ""
 }

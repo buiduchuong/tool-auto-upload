@@ -10,6 +10,7 @@ chrome-profile*/
 # Runtime video/data folders
 videos/
 TikTok_Channel/
+Facebook_Channel/
 uploaded_success/
 uploaded_tiktok_success/
 uploaded_facebook_success/
@@ -28,6 +29,7 @@ description_hashtags.txt
 *_last_run.log
 *_media_urls.txt
 archive_video.txt
+facebook_archive_video.txt
 web_panel_url.txt
 
 # Generated packages/build output

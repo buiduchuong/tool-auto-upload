@@ -90,6 +90,14 @@ async function api(path, body) {
   return data;
 }
 
+async function saveSettings(settings = collectSettings()) {
+  const { accounts, ...baseSettings } = settings;
+  await api("/api/settings", { settings: baseSettings });
+  if (accounts) {
+    await api("/api/settings", { settings: { accounts } });
+  }
+}
+
 function formatSize(bytes) {
   if (!bytes) return "0 B";
   const units = ["B", "KB", "MB", "GB"];
@@ -270,7 +278,7 @@ async function pollJobs() {
 }
 
 async function saveAll() {
-  await api("/api/settings", { settings: collectSettings() });
+  await saveSettings();
   await api("/api/descriptions", { descriptions: collectDescriptions() });
   toast("Da luu cau hinh.");
   await loadState();
@@ -322,13 +330,14 @@ async function addAccount(platform) {
   items.push(account);
   group.items = items;
   group.selected = id;
-  await api("/api/settings", { settings });
+  await saveSettings(settings);
   toast("Da them account. Hay mo Chrome dang nhap account moi.");
   await loadState();
 }
 
 async function runAction(value) {
   const [platform, action] = value.split(".");
+  await saveSettings();
   const actionStatus = $(`#${platform}ActionStatus`);
   if (actionStatus) {
     actionStatus.textContent = "Đang gửi lệnh...";
@@ -337,7 +346,6 @@ async function runAction(value) {
   const payload = {
     platform,
     action,
-    settings: collectSettings(),
     descriptions: collectDescriptions(),
   };
   if (action === "upload_selected") {
@@ -362,11 +370,11 @@ async function runSequence(platform) {
     toast("Hay tick it nhat mot account.");
     return;
   }
+  await saveSettings();
   await api("/api/action", {
     platform,
     action: "upload_sequence",
     account_ids: accountIds,
-    settings: collectSettings(),
     descriptions: collectDescriptions(),
   });
   toast("Da bat dau upload lan luot.");
@@ -400,6 +408,16 @@ function wireEvents() {
   });
   $("#refreshBtn").addEventListener("click", () => loadState().then(() => toast("Da lam moi.")));
   $("#saveAllBtn").addEventListener("click", () => saveAll().catch((error) => toast(error.message)));
+  $("#facebookProfilePreset")?.addEventListener("click", () => {
+    $("#download_format").value = "facebook_profile";
+    $("#download_download_dir").value = "Facebook_Channel";
+    $("#facebook_upload_dir").value = "Facebook_Channel";
+    $("#download_output_template").value = "%(uploader)s/%(upload_date)s_%(id)s.%(ext)s";
+    $("#download_allow_playlist").checked = true;
+    $("#download_extra_args").value = "";
+    if (!$("#downloadUrls").value.trim()) $("#downloadUrls").value = "https://www.facebook.com/username\n";
+    toast("Đã nạp mẫu tải Facebook profile.");
+  });
   $$("[data-action]").forEach((button) => {
     button.addEventListener("click", () => runAction(button.dataset.action).catch((error) => toast(error.message)));
   });
@@ -415,7 +433,7 @@ function wireEvents() {
   $$("[data-account-select]").forEach((select) => {
     select.addEventListener("change", async () => {
       try {
-        await api("/api/settings", { settings: collectSettings() });
+        await saveSettings();
         await loadState();
       } catch (error) {
         toast(error.message);

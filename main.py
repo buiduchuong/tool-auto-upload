@@ -127,7 +127,7 @@ def find_chrome_executable(chrome_binary: Optional[str] = None) -> str:
 
 def open_manual_chrome(chrome_binary: Optional[str] = None, with_debug: bool = True) -> None:
     """Mo Chrome that, khong qua Selenium, de dang nhap Google/YouTube."""
-    PROFILE_DIR.mkdir(exist_ok=True)
+    PROFILE_DIR.mkdir(parents=True, exist_ok=True)
     chrome = find_chrome_executable(chrome_binary)
 
     cmd = [
@@ -149,7 +149,7 @@ def open_manual_chrome(chrome_binary: Optional[str] = None, with_debug: bool = T
 
 
 def build_driver(chrome_binary: Optional[str] = None, attach: bool = False) -> WebDriver:
-    PROFILE_DIR.mkdir(exist_ok=True)
+    PROFILE_DIR.mkdir(parents=True, exist_ok=True)
 
     options = Options()
     options.add_argument("--start-maximized")

@@ -31,6 +31,7 @@ PANEL_SETTINGS_FILE = BASE_DIR / "panel_settings.json"
 MAIN_FILE = BASE_DIR / "main.py"
 TIKTOK_UPLOAD_FILE = BASE_DIR / "tiktok_upload.py"
 FACEBOOK_UPLOAD_FILE = BASE_DIR / "facebook_upload.py"
+FACEBOOK_PROFILE_DOWNLOAD_FILE = BASE_DIR / "facebook_profile_download.py"
 INSTAGRAM_UPLOAD_FILE = BASE_DIR / "instagram_upload.py"
 AYRSHARE_UPLOAD_FILE = BASE_DIR / "ayrshare_upload.py"
 AYRSHARE_LOG_FILE = BASE_DIR / "ayrshare_last_run.log"
@@ -48,6 +49,8 @@ FACEBOOK_DEBUG_PORT = 9224
 INSTAGRAM_DEBUG_PORT = 9225
 TIKTOK_DOWNLOAD_DIR = BASE_DIR / "TikTok_Channel"
 TIKTOK_ARCHIVE_FILE = BASE_DIR / "archive_video.txt"
+FACEBOOK_DOWNLOAD_DIR = BASE_DIR / "Facebook_Channel"
+FACEBOOK_ARCHIVE_FILE = BASE_DIR / "facebook_archive_video.txt"
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".mkv", ".avi", ".webm", ".m4v"}
 URL_RE = re.compile(r"https?://\S+")
 
@@ -658,7 +661,7 @@ class UploadPanel:
         ttk.Combobox(
             form,
             textvariable=self.download_format,
-            values=("full_hd_1080", "tiktok_profile", "auto_with_audio", "best_mp4", "best", "audio_m4a"),
+            values=("full_hd_1080", "tiktok_profile", "facebook_profile", "auto_with_audio", "best_mp4", "best", "audio_m4a"),
             state="readonly",
         ).grid(row=1, column=1, columnspan=2, sticky="ew", padx=(12, 0), pady=4)
 
@@ -679,6 +682,7 @@ class UploadPanel:
         actions.pack(fill=X)
         ttk.Button(actions, text="Tải video", command=self.download_urls, style="Accent.TButton").pack(fill=X)
         ttk.Button(actions, text="Mẫu tải profile TikTok", command=self.apply_tiktok_profile_preset).pack(fill=X, pady=(8, 0))
+        ttk.Button(actions, text="Mẫu tải profile Facebook", command=self.apply_facebook_profile_preset).pack(fill=X, pady=(8, 0))
         ttk.Button(actions, text="Xem lệnh sẽ chạy", command=self.preview_ytdlp_command).pack(fill=X, pady=(8, 0))
         ttk.Button(actions, text="Lệnh cPanel/Linux TikTok", command=self.preview_cpanel_tiktok_command).pack(fill=X, pady=(8, 0))
         ttk.Button(actions, text="Mở thư mục lưu", command=self.open_download_folder).pack(fill=X, pady=(8, 0))
@@ -691,7 +695,8 @@ class UploadPanel:
             text=(
                 "Mỗi dòng nhập một link. Mặc định panel ưu tiên Full HD 1080p và lưu vào thư mục videos/. "
                 "YouTube 1080p thường cần ffmpeg để ghép video với âm thanh. "
-                "Với TikTok profile, bấm Mẫu tải profile TikTok rồi dán link dạng https://www.tiktok.com/@username. "
+                "Với TikTok/Facebook profile, bấm nút mẫu tương ứng rồi dán link profile. Facebook sẽ dùng Chrome Facebook đã đăng nhập, "
+                "tự quét tab Reels và Videos, đồng thời bỏ qua video đã tải bằng archive riêng. "
                 "Sau khi tải xong, có thể upload tiếp bằng tab Upload YouTube. Với Facebook riêng tư, bạn có thể cần thêm cookies "
                 "vào ô Lệnh thêm, ví dụ: --cookies cookies.txt"
             ),
@@ -1061,6 +1066,20 @@ class UploadPanel:
             "\n[PANEL] Đã nạp mẫu TikTok profile: lưu vào TikTok_Channel, dùng archive_video.txt, nghỉ 3-8 giây.\n"
         )
 
+    def apply_facebook_profile_preset(self) -> None:
+        self.download_format.set("facebook_profile")
+        self.download_dir.set(str(FACEBOOK_DOWNLOAD_DIR))
+        self.facebook_upload_dir.set(str(FACEBOOK_DOWNLOAD_DIR))
+        self.output_template.set("%(uploader)s/%(upload_date)s_%(id)s.%(ext)s")
+        self.allow_playlist.set(True)
+        self.extra_ytdlp_args.set("")
+        current_text = self.url_text.get("1.0", END).strip()
+        if not current_text:
+            self.url_text.insert("1.0", "https://www.facebook.com/username\n")
+        self._append_download_log(
+            "\n[PANEL] Đã nạp mẫu Facebook profile: dùng Chrome Facebook, quét Reels/Videos và archive riêng.\n"
+        )
+
     def load_description(self) -> None:
         DESCRIPTION_FILE.touch(exist_ok=True)
         text = DESCRIPTION_FILE.read_text(encoding="utf-8-sig")
@@ -1112,11 +1131,15 @@ class UploadPanel:
             print(f"[PANEL] Không đọc được panel_settings.json: {exc}")
             return
         facebook = data.get("facebook", {})
+        self.facebook_upload_dir.set(facebook.get("upload_dir", self.facebook_upload_dir.get()))
         self.facebook_mode.set(facebook.get("mode", self.facebook_mode.get()))
         self.facebook_target_url.set(facebook.get("target_url", self.facebook_target_url.get()))
         self.facebook_page_id.set(facebook.get("page_id", self.facebook_page_id.get()))
         self.facebook_page_token.set(facebook.get("page_token", self.facebook_page_token.get()))
         self.facebook_api_version.set(facebook.get("api_version", self.facebook_api_version.get()))
+        self.facebook_delay.set(str(facebook.get("delay", self.facebook_delay.get())))
+        self.facebook_attach.set(bool(facebook.get("attach", self.facebook_attach.get())))
+        self.facebook_custom_title.set(facebook.get("custom_title", self.facebook_custom_title.get()))
         instagram = data.get("instagram", {})
         self.instagram_upload_dir.set(instagram.get("upload_dir", self.instagram_upload_dir.get()))
         self.instagram_delay.set(str(instagram.get("delay", self.instagram_delay.get())))
@@ -1142,6 +1165,12 @@ class UploadPanel:
         self.zernio_min_gap.set(str(zernio.get("min_gap_minutes", self.zernio_min_gap.get())))
         self.zernio_max_gap.set(str(zernio.get("max_gap_minutes", self.zernio_max_gap.get())))
         self.zernio_max_videos.set(str(zernio.get("max_videos", self.zernio_max_videos.get())))
+        download = data.get("download", {})
+        self.download_dir.set(download.get("download_dir", self.download_dir.get()))
+        self.download_format.set(download.get("format", self.download_format.get()))
+        self.output_template.set(download.get("output_template", self.output_template.get()))
+        self.allow_playlist.set(bool(download.get("allow_playlist", self.allow_playlist.get())))
+        self.extra_ytdlp_args.set(download.get("extra_args", self.extra_ytdlp_args.get()))
 
     def save_panel_settings(self) -> None:
         data = {}
@@ -1151,11 +1180,15 @@ class UploadPanel:
             except Exception:
                 data = {}
         data["facebook"] = {
+            "upload_dir": self.facebook_upload_dir.get().strip(),
             "mode": self.facebook_mode.get().strip(),
             "target_url": self.facebook_target_url.get().strip(),
             "page_id": self.facebook_page_id.get().strip(),
             "page_token": self.facebook_page_token.get().strip(),
             "api_version": self.facebook_api_version.get().strip(),
+            "delay": self.facebook_delay.get().strip(),
+            "attach": self.facebook_attach.get(),
+            "custom_title": self.facebook_custom_title.get().strip(),
         }
         data["instagram"] = {
             "upload_dir": self.instagram_upload_dir.get().strip(),
@@ -1184,6 +1217,13 @@ class UploadPanel:
             "min_gap_minutes": self.zernio_min_gap.get().strip(),
             "max_gap_minutes": self.zernio_max_gap.get().strip(),
             "max_videos": self.zernio_max_videos.get().strip(),
+        }
+        data["download"] = {
+            "download_dir": self.download_dir.get().strip(),
+            "format": self.download_format.get().strip(),
+            "output_template": self.output_template.get().strip(),
+            "allow_playlist": self.allow_playlist.get(),
+            "extra_args": self.extra_ytdlp_args.get().strip(),
         }
         PANEL_SETTINGS_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
@@ -1589,6 +1629,7 @@ class UploadPanel:
         if not YTDLP_FILE.exists():
             messagebox.showerror("Thiếu yt-dlp.exe", f"Không thấy file:\n{YTDLP_FILE}")
             return
+        self.save_panel_settings()
         if self.download_format.get() == "full_hd_1080" and not self._ffmpeg_available():
             messagebox.showwarning(
                 "Thiếu ffmpeg",
@@ -1649,6 +1690,22 @@ class UploadPanel:
         output_dir.mkdir(parents=True, exist_ok=True)
 
         format_choice = self.download_format.get()
+
+        if format_choice == "facebook_profile":
+            cmd = self._script_cmd(FACEBOOK_PROFILE_DOWNLOAD_FILE) + [
+                "--output-dir", str(output_dir),
+                "--output-template", self.output_template.get().strip() or "%(uploader)s/%(upload_date)s_%(id)s.%(ext)s",
+                "--archive-file", str(FACEBOOK_ARCHIVE_FILE),
+                "--profile-dir", str(FACEBOOK_PROFILE_DIR),
+                "--debug-port", str(FACEBOOK_DEBUG_PORT),
+                "--yt-dlp", str(YTDLP_FILE),
+                "--ffmpeg-dir", str(BASE_DIR),
+            ]
+            extra = self.extra_ytdlp_args.get().strip()
+            if extra:
+                cmd.append(f"--extra-args={extra}")
+            cmd.extend(urls)
+            return cmd
 
         cmd = [str(YTDLP_FILE), "--newline"]
         if format_choice == "tiktok_profile":
