@@ -16,6 +16,8 @@ from tkinter import font as tkfont
 from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 
+from download_formats import full_hd_with_audio_args
+
 if getattr(sys, "frozen", False):
     BASE_DIR = Path(sys.executable).resolve().parent
 else:
@@ -51,6 +53,7 @@ TIKTOK_DOWNLOAD_DIR = BASE_DIR / "TikTok_Channel"
 TIKTOK_ARCHIVE_FILE = BASE_DIR / "archive_video.txt"
 FACEBOOK_DOWNLOAD_DIR = BASE_DIR / "Facebook_Channel"
 FACEBOOK_ARCHIVE_FILE = BASE_DIR / "facebook_archive_video.txt"
+YOUTUBE_ARCHIVE_FILE = BASE_DIR / "youtube_archive_video.txt"
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".mkv", ".avi", ".webm", ".m4v"}
 URL_RE = re.compile(r"https?://\S+")
 
@@ -120,7 +123,7 @@ class UploadPanel:
         self.description_hashtags = StringVar(value="")
         self.download_dir = StringVar(value=str(VIDEOS_DIR))
         self.download_format = StringVar(value="full_hd_1080")
-        self.output_template = StringVar(value="%(title).200s.%(ext)s")
+        self.output_template = StringVar(value="%(title).180s #%(uploader).50s.%(ext)s")
         self.allow_playlist = BooleanVar(value=True)
         self.extra_ytdlp_args = StringVar(value="")
         self.status = StringVar(value="Sẵn sàng")
@@ -661,7 +664,7 @@ class UploadPanel:
         ttk.Combobox(
             form,
             textvariable=self.download_format,
-            values=("full_hd_1080", "tiktok_profile", "facebook_profile", "auto_with_audio", "best_mp4", "best", "audio_m4a"),
+            values=("full_hd_1080", "youtube_profile", "tiktok_profile", "facebook_profile", "auto_with_audio", "best_mp4", "best", "audio_m4a"),
             state="readonly",
         ).grid(row=1, column=1, columnspan=2, sticky="ew", padx=(12, 0), pady=4)
 
@@ -681,6 +684,7 @@ class UploadPanel:
         actions = ttk.Frame(action_section, padding=12)
         actions.pack(fill=X)
         ttk.Button(actions, text="Tải video", command=self.download_urls, style="Accent.TButton").pack(fill=X)
+        ttk.Button(actions, text="Mẫu tải profile YouTube", command=self.apply_youtube_profile_preset).pack(fill=X, pady=(8, 0))
         ttk.Button(actions, text="Mẫu tải profile TikTok", command=self.apply_tiktok_profile_preset).pack(fill=X, pady=(8, 0))
         ttk.Button(actions, text="Mẫu tải profile Facebook", command=self.apply_facebook_profile_preset).pack(fill=X, pady=(8, 0))
         ttk.Button(actions, text="Xem lệnh sẽ chạy", command=self.preview_ytdlp_command).pack(fill=X, pady=(8, 0))
@@ -1064,6 +1068,20 @@ class UploadPanel:
             self.url_text.insert("1.0", "https://www.tiktok.com/@tamanmoingay2404\n")
         self._append_download_log(
             "\n[PANEL] Đã nạp mẫu TikTok profile: lưu vào TikTok_Channel, dùng archive_video.txt, nghỉ 3-8 giây.\n"
+        )
+
+    def apply_youtube_profile_preset(self) -> None:
+        self.download_format.set("youtube_profile")
+        self.download_dir.set(str(VIDEOS_DIR))
+        self.upload_dir.set(str(VIDEOS_DIR))
+        self.output_template.set("%(title).180s #%(uploader).50s.%(ext)s")
+        self.allow_playlist.set(True)
+        self.extra_ytdlp_args.set("")
+        current_text = self.url_text.get("1.0", END).strip()
+        if not current_text:
+            self.url_text.insert("1.0", "https://www.youtube.com/@username/videos\n")
+        self._append_download_log(
+            "\n[PANEL] Đã nạp mẫu YouTube profile: tối đa 1080p có tiếng và dùng archive riêng.\n"
         )
 
     def apply_facebook_profile_preset(self) -> None:
@@ -1630,7 +1648,7 @@ class UploadPanel:
             messagebox.showerror("Thiếu yt-dlp.exe", f"Không thấy file:\n{YTDLP_FILE}")
             return
         self.save_panel_settings()
-        if self.download_format.get() == "full_hd_1080" and not self._ffmpeg_available():
+        if self.download_format.get() in {"full_hd_1080", "youtube_profile", "tiktok_profile", "facebook_profile"} and not self._ffmpeg_available():
             messagebox.showwarning(
                 "Thiếu ffmpeg",
                 "Chế độ Full HD 1080p cần ffmpeg để ghép hình và tiếng.\n"
@@ -1653,10 +1671,10 @@ class UploadPanel:
             "python3 -m pip install -U yt-dlp\n"
             "mkdir -p TikTok_Channel\n"
             f"python3 -m yt_dlp --ignore-config {self._shell_quote(url)} \\\n"
-            "  -f 'bv*+ba/b' \\\n"
+            "  -f 'bv+ba/b[vcodec!=none][acodec!=none]' \\\n"
+            "  -S 'res:1080' \\\n"
             "  --merge-output-format mp4 \\\n"
             "  --remux-video mp4 \\\n"
-            "  --match-filter 'vcodec!=none' \\\n"
             "  -P TikTok_Channel \\\n"
             f"  -o {self._shell_quote(output_template)} \\\n"
             "  --download-archive archive_video.txt \\\n"
@@ -1707,10 +1725,12 @@ class UploadPanel:
             cmd.extend(urls)
             return cmd
 
-        cmd = [str(YTDLP_FILE), "--newline"]
-        if format_choice == "tiktok_profile":
-            cmd.append("--ignore-config")
+        cmd = [str(YTDLP_FILE), "--ignore-config", "--newline"]
         cmd.extend(["--ignore-errors", "-P", str(output_dir), "-o", self.output_template.get().strip()])
+        if format_choice != "tiktok_profile" and any(
+            "youtube.com/" in url.lower() or "youtu.be/" in url.lower() for url in urls
+        ):
+            cmd.extend(["--replace-in-metadata", "uploader", r"[^\w]", ""])
         if LOCAL_FFMPEG_FILE.exists():
             cmd.extend(["--ffmpeg-location", str(BASE_DIR)])
         if format_choice == "tiktok_profile":
@@ -1720,15 +1740,10 @@ class UploadPanel:
         else:
             cmd.append("--no-playlist")
 
-        if format_choice == "full_hd_1080":
-            cmd.extend(
-                [
-                    "-f",
-                    "bv*[height<=1080]+ba/b[height<=1080]/best[height<=1080]/best",
-                    "--merge-output-format",
-                    "mp4",
-                ]
-            )
+        if format_choice in {"full_hd_1080", "youtube_profile"}:
+            cmd.extend(full_hd_with_audio_args())
+            if format_choice == "youtube_profile":
+                cmd.extend(["--download-archive", str(YOUTUBE_ARCHIVE_FILE)])
         elif format_choice == "auto_with_audio":
             pass
         elif format_choice == "best_mp4":
@@ -1740,14 +1755,6 @@ class UploadPanel:
         elif format_choice == "tiktok_profile":
             cmd.extend(
                 [
-                    "-f",
-                    "bv*+ba/b",
-                    "--merge-output-format",
-                    "mp4",
-                    "--remux-video",
-                    "mp4",
-                    "--match-filter",
-                    "vcodec!=none",
                     "--download-archive",
                     str(TIKTOK_ARCHIVE_FILE),
                     "--sleep-interval",
@@ -1756,6 +1763,7 @@ class UploadPanel:
                     "8",
                 ]
             )
+            cmd.extend(full_hd_with_audio_args())
 
         extra = self.extra_ytdlp_args.get().strip()
         if extra:

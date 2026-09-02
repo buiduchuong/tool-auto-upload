@@ -408,6 +408,26 @@ function wireEvents() {
   });
   $("#refreshBtn").addEventListener("click", () => loadState().then(() => toast("Da lam moi.")));
   $("#saveAllBtn").addEventListener("click", () => saveAll().catch((error) => toast(error.message)));
+  $("#youtubeProfilePreset")?.addEventListener("click", () => {
+    $("#download_format").value = "youtube_profile";
+    $("#download_download_dir").value = "videos";
+    $("#youtube_upload_dir").value = "videos";
+    $("#download_output_template").value = "%(title).180s #%(uploader).50s.%(ext)s";
+    $("#download_allow_playlist").checked = true;
+    $("#download_extra_args").value = "";
+    if (!$("#downloadUrls").value.trim()) $("#downloadUrls").value = "https://www.youtube.com/@username/videos\n";
+    toast("Đã nạp mẫu tải YouTube profile 1080p có âm thanh.");
+  });
+  $("#tiktokProfilePreset")?.addEventListener("click", () => {
+    $("#download_format").value = "tiktok_profile";
+    $("#download_download_dir").value = "TikTok_Channel";
+    $("#tiktok_upload_dir").value = "TikTok_Channel";
+    $("#download_output_template").value = "%(uploader)s/%(upload_date)s_%(id)s.%(ext)s";
+    $("#download_allow_playlist").checked = true;
+    $("#download_extra_args").value = "";
+    if (!$("#downloadUrls").value.trim()) $("#downloadUrls").value = "https://www.tiktok.com/@username\n";
+    toast("Đã nạp mẫu tải TikTok profile 1080p có âm thanh.");
+  });
   $("#facebookProfilePreset")?.addEventListener("click", () => {
     $("#download_format").value = "facebook_profile";
     $("#download_download_dir").value = "Facebook_Channel";

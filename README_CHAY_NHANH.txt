@@ -6,6 +6,12 @@ Ban nay da cau hinh dung theo yeu cau:
 - Mo ta dung chung cho tat ca video trong file: default_description.txt
 - Che do dang mac dinh: Cong khai / Public
 
+TAI VIDEO/PROFILE YOUTUBE, FACEBOOK, TIKTOK CO AM THANH 1080 HD
+- Chay run_panel.bat -> tab Tai video.
+- Tai ca kenh YouTube: bam "Mau tai profile YouTube", thay @username bang ten kenh, roi bam "Tai video".
+- Facebook va TikTok: bam nut mau profile tuong ung. Tool uu tien toi da 1080 HD (ke ca video doc), ghep hinh + tieng vao mot file MP4 bang ffmpeg.
+- Bai TikTok dang slideshow/chi co audio se duoc bo qua, khong luu nham thanh video.
+
 SETUP KHI COPY SANG MAY KHAC / VPS
 - Giai nen source/tool vao mot thu muc rieng.
 - Bam chay setup.bat.

@@ -27,6 +27,7 @@ $Files = @(
     "tiktok_upload.py",
     "facebook_upload.py",
     "facebook_profile_download.py",
+    "download_formats.py",
     "instagram_upload.py",
     "zernio_upload.py",
     "web_panel.py",

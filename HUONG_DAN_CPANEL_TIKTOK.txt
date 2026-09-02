@@ -48,10 +48,10 @@ LENH MAU CPANEL / LINUX
 python3 -m pip install -U yt-dlp
 mkdir -p TikTok_Channel
 python3 -m yt_dlp --ignore-config "https://www.tiktok.com/@tamanmoingay2404" \
-  -f "bv*+ba/b" \
+  -f "bv+ba/b[vcodec!=none][acodec!=none]" \
+  -S "res:1080" \
   --merge-output-format mp4 \
   --remux-video mp4 \
-  --match-filter "vcodec!=none" \
   -P "TikTok_Channel" \
   -o "%(uploader)s/%(upload_date)s_%(id)s.%(ext)s" \
   --download-archive "archive_video.txt" \

@@ -15,10 +15,10 @@ if not defined YTDLP_CMD (
 )
 
 %YTDLP_CMD% --ignore-config "%PROFILE_URL%" ^
--f "bv*+ba/b" ^
+-f "bv+ba/b[vcodec!=none][acodec!=none]" ^
+-S "res:1080" ^
 --merge-output-format mp4 ^
 --remux-video mp4 ^
---match-filter "vcodec!=none" ^
 --ffmpeg-location "." ^
 -P "TikTok_Channel" ^
 -o "%%(uploader)s/%%(upload_date)s_%%(id)s.%%(ext)s" ^

@@ -18,6 +18,8 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
+from download_formats import full_hd_with_audio_args
+
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -51,6 +53,7 @@ FACEBOOK_PROFILE_DIR = BASE_DIR / "chrome-profile-facebook"
 INSTAGRAM_PROFILE_DIR = BASE_DIR / "chrome-profile-instagram"
 TIKTOK_ARCHIVE_FILE = BASE_DIR / "archive_video.txt"
 FACEBOOK_ARCHIVE_FILE = BASE_DIR / "facebook_archive_video.txt"
+YOUTUBE_ARCHIVE_FILE = BASE_DIR / "youtube_archive_video.txt"
 DELETED_VIDEOS_DIR = BASE_DIR / "deleted_videos"
 WEB_PANEL_URL_FILE = BASE_DIR / "web_panel_url.txt"
 
@@ -256,7 +259,7 @@ def default_settings() -> dict[str, Any]:
         "download": {
             "download_dir": str(VIDEOS_DIR),
             "format": "full_hd_1080",
-            "output_template": "%(title).200s.%(ext)s",
+            "output_template": "%(title).180s #%(uploader).50s.%(ext)s",
             "allow_playlist": True,
             "extra_args": "",
         },
@@ -731,17 +734,30 @@ def build_ytdlp_command(download: dict[str, Any], urls: list[str]) -> list[str]:
             cmd.append(f"--extra-args={extra}")
         cmd.extend(urls)
         return cmd
-    cmd = base_cmd + ["--newline", "--ignore-errors", "-P", str(output_dir), "-o", str(download.get("output_template") or "%(title).200s.%(ext)s")]
+    cmd = base_cmd + [
+        "--ignore-config",
+        "--newline",
+        "--ignore-errors",
+        "-P",
+        str(output_dir),
+        "-o",
+        str(download.get("output_template") or "%(title).180s #%(uploader).50s.%(ext)s"),
+    ]
+    if fmt != "tiktok_profile" and any(
+        "youtube.com/" in url.lower() or "youtu.be/" in url.lower() for url in urls
+    ):
+        cmd.extend(["--replace-in-metadata", "uploader", r"[^\w]", ""])
     if fmt == "tiktok_profile":
-        cmd.append("--ignore-config")
         cmd.append("--yes-playlist")
     elif download.get("allow_playlist", True):
         cmd.append("--yes-playlist")
     else:
         cmd.append("--no-playlist")
     cmd.extend(ffmpeg_location_args())
-    if fmt == "full_hd_1080":
-        cmd.extend(["-f", "bv*[height<=1080]+ba/b[height<=1080]/best[height<=1080]/best", "--merge-output-format", "mp4"])
+    if fmt in {"full_hd_1080", "youtube_profile"}:
+        cmd.extend(full_hd_with_audio_args())
+        if fmt == "youtube_profile":
+            cmd.extend(["--download-archive", str(YOUTUBE_ARCHIVE_FILE)])
     elif fmt == "best_mp4":
         cmd.extend(["-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best", "--merge-output-format", "mp4"])
     elif fmt == "best":
@@ -751,14 +767,6 @@ def build_ytdlp_command(download: dict[str, Any], urls: list[str]) -> list[str]:
     elif fmt == "tiktok_profile":
         cmd.extend(
             [
-                "-f",
-                "bv*+ba/b",
-                "--merge-output-format",
-                "mp4",
-                "--remux-video",
-                "mp4",
-                "--match-filter",
-                "vcodec!=none",
                 "--download-archive",
                 str(TIKTOK_ARCHIVE_FILE),
                 "--sleep-interval",
@@ -767,6 +775,7 @@ def build_ytdlp_command(download: dict[str, Any], urls: list[str]) -> list[str]:
                 "8",
             ]
         )
+        cmd.extend(full_hd_with_audio_args())
     extra = str(download.get("extra_args") or "").strip()
     if extra:
         cmd.extend(shlex.split(extra, posix=False))
@@ -1220,7 +1229,7 @@ def gpt_openapi_schema(handler: WebPanelHandler) -> dict[str, Any]:
                         },
                         "format": {
                             "type": "string",
-                            "enum": ["full_hd_1080", "auto_with_audio", "best_mp4", "best", "audio_m4a", "tiktok_profile", "facebook_profile"],
+                            "enum": ["full_hd_1080", "auto_with_audio", "best_mp4", "best", "audio_m4a", "youtube_profile", "tiktok_profile", "facebook_profile"],
                         },
                         "download_dir": {"type": "string"},
                         "output_template": {"type": "string"},

@@ -15,6 +15,7 @@ import urllib.parse
 from pathlib import Path
 
 import facebook_upload
+from download_formats import full_hd_with_audio_args
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -198,14 +199,6 @@ def main() -> int:
         str(output_dir),
         "-o",
         args.output_template,
-        "-f",
-        "bv*+ba/b",
-        "--merge-output-format",
-        "mp4",
-        "--remux-video",
-        "mp4",
-        "--match-filter",
-        "vcodec!=none",
         "--download-archive",
         str(archive_file),
         "--sleep-interval",
@@ -213,6 +206,7 @@ def main() -> int:
         "--max-sleep-interval",
         "6",
     ]
+    cmd.extend(full_hd_with_audio_args())
     if Path(args.ffmpeg_dir).exists():
         cmd.extend(["--ffmpeg-location", args.ffmpeg_dir])
     cmd.extend(split_extra_args(args.extra_args))
