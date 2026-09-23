@@ -7,10 +7,31 @@ import path from 'path'
 
 const browserPageOpt = { waitUntil: 'domcontentloaded', timeout: 90000 }
 
+function findBrowserExecutable() {
+  const configuredPath = process.env.PUPPETEER_EXECUTABLE_PATH?.trim()
+  if (configuredPath) return configuredPath
+
+  if (process.platform === 'win32') {
+    const candidates = [
+      process.env.PROGRAMFILES && path.join(process.env.PROGRAMFILES, 'Google', 'Chrome', 'Application', 'chrome.exe'),
+      process.env['PROGRAMFILES(X86)'] && path.join(process.env['PROGRAMFILES(X86)'], 'Google', 'Chrome', 'Application', 'chrome.exe'),
+      process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, 'Google', 'Chrome', 'Application', 'chrome.exe'),
+      process.env.PROGRAMFILES && path.join(process.env.PROGRAMFILES, 'Microsoft', 'Edge', 'Application', 'msedge.exe'),
+      process.env['PROGRAMFILES(X86)'] && path.join(process.env['PROGRAMFILES(X86)'], 'Microsoft', 'Edge', 'Application', 'msedge.exe')
+    ].filter(Boolean)
+
+    const installedBrowser = candidates.find((candidate) => fs.existsSync(candidate))
+    if (installedBrowser) return installedBrowser
+  }
+
+  return executablePath()
+}
+
 function getBrowserOptions() {
+  const headless = process.env.PUPPETEER_HEADLESS === 'true'
   return {
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || executablePath(),
-    headless: process.env.PUPPETEER_HEADLESS === 'true',
+    executablePath: findBrowserExecutable(),
+    headless: headless ? 'new' : false,
     timeout: 60000,
     dumpio: process.env.PUPPETEER_DEBUG === 'true',
     args: [
@@ -19,7 +40,9 @@ function getBrowserOptions() {
       '--mute-audio',
       '--disable-gpu',
       '--disable-dev-shm-usage',
-      '--disable-extensions'
+      '--disable-extensions',
+      '--no-first-run',
+      '--no-default-browser-check'
     ]
   }
 }
@@ -118,6 +141,7 @@ export const CheckFacebookCookie = (cookieFilePath, options = {}) => new Promise
 
     const launchOptions = getBrowserOptions()
     printLog(`Checking Facebook cookie (${launchOptions.headless ? 'headless' : 'visible'})...`)
+    printLog(`Browser executable: ${launchOptions.executablePath}`)
     browser = await withTimeout(
       puppeteer.launch(launchOptions),
       70000,
@@ -422,6 +446,7 @@ export const ReelsUpload = (namafile, caption, options = {}) => new Promise(asyn
   try {
     const launchOptions = getBrowserOptions()
     printLog(`Starting Chrome (${launchOptions.headless ? 'headless' : 'visible'})...`)
+    printLog(`Browser executable: ${launchOptions.executablePath}`)
     browser = await withTimeout(
       puppeteer.launch(launchOptions),
       70000,
